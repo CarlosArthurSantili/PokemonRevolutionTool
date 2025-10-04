@@ -1,139 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Site com Timer Regressivo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f8f8f8;
-    }
-
-    h1, h2 {
-      color: #333;
-    }
-
-    ul {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      list-style-type: square;
-      max-width: 400px;
-    }
-
-    table {
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    table, th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-    }
-
-    #timer {
-      font-size: 32px;
-      font-weight: bold;
-      color: #d9534f;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 16px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplos Timers com Navegação</title>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>Minha Página Compartilhável</h1>
+    <div id="sidebar">
+        <h2>Navegação</h2>
+        <a id="nav-menu" class="nav-link active" data-target="section-menu">🏠 Menu Principal</a>
+        <a id="nav-timer" class="nav-link" data-target="section-timer">⏱ Timers</a>
+        <a id="nav-pvp" class="nav-link" data-target="section-pvp">⚔ PvP</a>
+    </div>
 
-  <!-- Lista -->
-  <h2>Lista de Tarefas</h2>
-  <ul>
-    <li>Estudar HTML</li>
-    <li>Praticar JavaScript</li>
-    <li>Finalizar o site</li>
-  </ul>
+    <div id="content">
+        
+        <div id="section-menu" class="content-section active">
+            <h1 class="timer-header">Bem-vindo ao Painel de Controle!</h1>
+            <p class="new-section-message">Use o menu lateral para alternar entre os Timers e a Área PvP.</p>
+        </div>
 
-  <!-- Tabela -->
-  <h2>Tabela de Pontuação</h2>
-  <table>
-    <tr>
-      <th>Nome</th>
-      <th>Pontos</th>
-    </tr>
-    <tr>
-      <td>João</td>
-      <td>75</td>
-    </tr>
-    <tr>
-      <td>Maria</td>
-      <td>92</td>
-    </tr>
-  </table>
+        <div id="section-timer" class="content-section">
+            <h1 class="timer-header">Múltiplos Timers Persistentes</h1>
+            
+            <div id="timers-container">
+                <div id="timer1" class="timer-box">
+                    <h2>Tarefa A: Configuração (10s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
 
-  <!-- Timer Regressivo -->
-  <h2>Meu Timer Regressivo</h2>
-  <p id="timer">00:00</p>
-  <button onclick="startCountdown()">Iniciar</button>
-  <button onclick="pauseCountdown()">Pausar</button>
-  <button onclick="resetCountdown()">Resetar</button>
+                <div id="timer2" class="timer-box">
+                    <h2>Tarefa B: Análise (60s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
 
-  <script>
-    // Tempo inicial em segundos (ex: 5 minutos)
-    const initialTime = 5 * 60;
-    let currentSeconds = parseInt(localStorage.getItem("tempoRestante")) || initialTime;
-    let interval = null;
+                <div id="timer3" class="timer-box">
+                    <h2>Tarefa C: Execução (120s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
 
-    // Atualiza o display do timer
-    function updateDisplay() {
-      const min = Math.floor(currentSeconds / 60);
-      const sec = currentSeconds % 60;
-      document.getElementById("timer").textContent =
-        `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-    }
+                <div id="timer4" class="timer-box">
+                    <h2>Tarefa D: Revisão (5s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+            </div>
+        </div>
 
-    // Inicia o timer
-    function startCountdown() {
-      if (interval) return;
+        <div id="section-pvp" class="content-section">
+            <h1 class="timer-header">Área de Combate PvP</h1>
+            <p class="new-section-message">Esta seção está pronta para receber a lógica de Player vs Player.</p>
+        </div>
+        
+    </div>
 
-      interval = setInterval(() => {
-        if (currentSeconds > 0) {
-          currentSeconds--;
-          localStorage.setItem("tempoRestante", currentSeconds);
-          updateDisplay();
-        } else {
-          clearInterval(interval);
-          interval = null;
-          localStorage.removeItem("tempoRestante");
-          alert("Tempo esgotado!");
-        }
-      }, 1000);
-    }
-
-    // Pausa o timer
-    function pauseCountdown() {
-      clearInterval(interval);
-      interval = null;
-    }
-
-    // Reseta o timer
-    function resetCountdown() {
-      pauseCountdown();
-      currentSeconds = initialTime;
-      localStorage.setItem("tempoRestante", currentSeconds);
-      updateDisplay();
-    }
-
-    // Atualiza a tela ao carregar a página
-    updateDisplay();
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
