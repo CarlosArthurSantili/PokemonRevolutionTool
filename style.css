@@ -1,0 +1,155 @@
+/* Variáveis de Cores (Estilo Documentação/Wikipedia) */
+:root {
+    --bg-color: #f8f9fa;       /* Fundo claro, quase branco */
+    --border-color: #a2a9b1;   /* Borda cinza suave */
+    --text-color: #202122;     /* Texto preto padrão */
+    --action-color: #3366cc;   /* Azul de link/ação (botão) */
+    --finished-color: #28a745; /* Verde para sucesso */
+    --sidebar-bg: #e9ecef; /* Fundo cinza claro para o menu */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex; /* Habilita o Flexbox para o layout principal */
+    min-height: 100vh;
+}
+
+/* --- Estilo do Menu Lateral (Sidebar) --- */
+#sidebar {
+    width: 200px;
+    background-color: var(--sidebar-bg);
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* Impede que a sidebar diminua */
+}
+
+#sidebar h2 {
+    margin-top: 0;
+    padding: 0 20px 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-link {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 500;
+    border-left: 5px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: #dee2e6;
+}
+
+/* Estilo para o link ativo */
+.nav-link.active {
+    background-color: var(--action-color);
+    color: white;
+    border-left: 5px solid var(--finished-color);
+}
+
+/* --- Estilo do Conteúdo Principal --- */
+#content {
+    flex-grow: 1; /* Ocupa todo o espaço restante */
+    padding: 20px;
+    overflow-y: auto; /* Permite rolagem se o conteúdo for grande */
+}
+
+.content-section {
+    display: none; /* Esconde todas as seções por padrão */
+    padding: 20px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    min-height: 80vh;
+}
+
+.content-section.active {
+    display: block; /* Mostra a seção ativa */
+}
+
+/* Estilos do Timer (Mantidos do tema Wikipedia) */
+.timer-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+#timers-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+.timer-box {
+    background-color: #fcfcfc;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 20px;
+    width: 250px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+.timer-box h2 {
+    margin-top: 0;
+    color: var(--action-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+.timer-display {
+    font-size: 3em;
+    margin-bottom: 15px;
+    padding: 5px 10px;
+    border: 1px solid var(--border-color);
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    font-weight: 600;
+}
+.start-button {
+    padding: 8px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    border: 1px solid var(--action-color);
+    border-radius: 3px;
+    background-color: var(--action-color);
+    color: white;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.start-button:disabled {
+    background-color: #e0e0e0;
+    border-color: #a0a0a0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+.status-message {
+    margin-top: 15px;
+    padding: 8px;
+    font-size: 0.9em;
+    min-height: 20px; 
+    text-align: center;
+    border-radius: 3px;
+}
+.finished {
+    background-color: var(--finished-color);
+    color: white;
+    font-weight: bold;
+}
+.new-section-message {
+    padding: 20px;
+    background-color: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--text-color);
+}

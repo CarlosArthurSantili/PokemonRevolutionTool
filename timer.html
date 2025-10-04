@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplos Timers com Navegação</title>
+    
+    <style>
+        /* Variáveis de Cores (Estilo Documentação/Wikipedia) */
+        :root {
+            --bg-color: #f8f9fa;       
+            --border-color: #a2a9b1;   
+            --text-color: #202122;     
+            --action-color: #3366cc;   
+            --finished-color: #28a745; 
+            --sidebar-bg: #e9ecef; /* Fundo cinza claro para o menu */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex; /* Habilita o Flexbox para o layout principal */
+            min-height: 100vh;
+        }
+
+        /* --- Estilo do Menu Lateral (Sidebar) --- */
+        #sidebar {
+            width: 200px;
+            background-color: var(--sidebar-bg);
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* Impede que a sidebar diminua */
+        }
+        
+        #sidebar h2 {
+            margin-top: 0;
+            padding: 0 20px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-link:hover {
+            background-color: #dee2e6;
+        }
+
+        /* Estilo para o link ativo */
+        .nav-link.active {
+            background-color: var(--action-color);
+            color: white;
+            border-left: 5px solid var(--finished-color);
+        }
+
+        /* --- Estilo do Conteúdo Principal --- */
+        #content {
+            flex-grow: 1; /* Ocupa todo o espaço restante */
+            padding: 20px;
+            overflow-y: auto; /* Permite rolagem se o conteúdo for grande */
+        }
+
+        .content-section {
+            display: none; /* Esconde todas as seções por padrão */
+            padding: 20px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            min-height: 80vh;
+        }
+
+        .content-section.active {
+            display: block; /* Mostra a seção ativa */
+        }
+
+        /* Estilos do Timer (Mantidos do tema Wikipedia) */
+        .timer-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        #timers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        .timer-box {
+            /* Mantém o estilo de caixa do timer anterior */
+            background-color: #fcfcfc;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        .timer-box h2 {
+            margin-top: 0;
+            color: var(--action-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .timer-display {
+            font-size: 3em;
+            margin-bottom: 15px;
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background-color: #f5f5f5;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        .start-button {
+            padding: 8px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border: 1px solid var(--action-color);
+            border-radius: 3px;
+            background-color: var(--action-color);
+            color: white;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .start-button:disabled {
+            background-color: #e0e0e0;
+            border-color: #a0a0a0;
+            color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 8px;
+            font-size: 0.9em;
+            min-height: 20px; 
+            text-align: center;
+            border-radius: 3px;
+        }
+        .finished {
+            background-color: var(--finished-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Estilos específicos para as novas seções */
+        .new-section-message {
+            padding: 20px;
+            background-color: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Navegação</h2>
+        <a id="nav-menu" class="nav-link active" data-target="section-menu">🏠 Menu Principal</a>
+        <a id="nav-timer" class="nav-link" data-target="section-timer">⏱ Timers</a>
+        <a id="nav-pvp" class="nav-link" data-target="section-pvp">⚔ PvP</a>
+    </div>
+
+    <div id="content">
+        
+        <div id="section-menu" class="content-section active">
+            <h1 class="timer-header">Bem-vindo ao Painel de Controle!</h1>
+            <p class="new-section-message">Use o menu lateral para alternar entre os Timers e a Área PvP.</p>
+        </div>
+
+        <div id="section-timer" class="content-section">
+            <h1 class="timer-header">Múltiplos Timers Persistentes</h1>
+            
+            <div id="timers-container">
+                <div id="timer1" class="timer-box">
+                    <h2>Tarefa A: Configuração (10s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer2" class="timer-box">
+                    <h2>Tarefa B: Análise (60s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer3" class="timer-box">
+                    <h2>Tarefa C: Execução (120s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer4" class="timer-box">
+                    <h2>Tarefa D: Revisão (5s)</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-pvp" class="content-section">
+            <h1 class="timer-header">Área de Combate PvP</h1>
+            <p class="new-section-message">Esta seção está pronta para receber a lógica de Player vs Player.</p>
+        </div>
+        
+    </div>
+
+    <script>
+        
+        // --- FUNÇÕES GERAIS DE NAVEGAÇÃO ---
+
+        function switchSection(targetId) {
+            // 1. Esconde todas as seções e remove o estado ativo dos links
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // 2. Mostra a seção desejada
+            document.getElementById(targetId).classList.add('active');
+
+            // 3. Marca o link ativo
+            const activeLink = document.querySelector(`[data-target="${targetId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Adiciona listeners para os links de navegação
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = e.target.getAttribute('data-target');
+                switchSection(targetId);
+            });
+        });
+        
+        // --- FUNÇÕES DE LÓGICA DO TIMER (MANTIDAS) ---
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+            return `${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        function IndependentTimer(containerId, initialSeconds) {
+            const container = document.getElementById(containerId);
+            const display = container.querySelector('.timer-display');
+            const startButton = container.querySelector('.start-button');
+            const statusMessage = container.querySelector('.status-message');
+            
+            const LS_KEY = `timer_data_${containerId}`;
+            
+            let timeLeft = initialSeconds;
+            let countdownInterval;
+
+            function saveState() {
+                const data = JSON.stringify({
+                    startTime: Date.now(),
+                    duration: initialSeconds,
+                    state: "RUNNING"
+                });
+                localStorage.setItem(LS_KEY, data);
+            }
+
+            function clearState() {
+                localStorage.removeItem(LS_KEY);
+            }
+
+            function timerFinished() {
+                clearInterval(countdownInterval);
+                clearState(); 
+                
+                startButton.disabled = false;
+                startButton.textContent = "Iniciar Novamente";
+                statusMessage.textContent = "✅ CONCLUÍDO!";
+                statusMessage.classList.add('finished');
+                display.textContent = formatTime(0);
+            }
+
+            function runCountdown(startSeconds, isResume = false) {
+                startButton.disabled = true;
+                startButton.textContent = "Contando...";
+                statusMessage.classList.remove('finished'); 
+                
+                timeLeft = startSeconds;
+                display.textContent = formatTime(timeLeft);
+                
+                clearInterval(countdownInterval);
+
+                if (isResume) {
+                     statusMessage.textContent = `Contagem retomada (${formatTime(timeLeft)} restantes)...`;
+                } else {
+                     statusMessage.textContent = "Tempo em andamento...";
+                }
+
+                countdownInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        display.textContent = formatTime(timeLeft);
+                    } else {
+                        timerFinished();
+                    }
+                }, 1000);
+            }
+
+            function startCountdown() {
+                saveState();
+                runCountdown(initialSeconds);
+            }
+            
+            function loadAndResume() {
+                const savedData = localStorage.getItem(LS_KEY);
+                
+                if (savedData) {
+                    try {
+                        const state = JSON.parse(savedData);
+                        const elapsedMilliseconds = Date.now() - state.startTime;
+                        const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+                        const remainingSeconds = state.duration - elapsedSeconds;
+                        
+                        if (remainingSeconds > 0) {
+                            runCountdown(remainingSeconds, true);
+                            startButton.textContent = "Rodando...";
+                        } else {
+                            timerFinished(); 
+                            statusMessage.textContent = "✅ CONCLUÍDO (Offline)!";
+                            clearState();
+                        }
+                    } catch (e) {
+                        clearState();
+                        display.textContent = formatTime(initialSeconds);
+                        statusMessage.textContent = "Erro de carregamento. Pronto para iniciar.";
+                    }
+                } else {
+                    display.textContent = formatTime(initialSeconds);
+                    startButton.textContent = "Iniciar";
+                    statusMessage.textContent = "Pronto para iniciar.";
+                }
+            }
+
+            startButton.addEventListener('click', startCountdown);
+            loadAndResume();
+        }
+
+        // Inicializa os 4 timers
+        // IMPORTANTE: Eles são inicializados mesmo que não estejam visíveis (na seção "Timer"), 
+        // garantindo que a persistência funcione corretamente no background.
+        new IndependentTimer('timer1', 10);
+        new IndependentTimer('timer2', 60); 
+        new IndependentTimer('timer3', 120); 
+        new IndependentTimer('timer4', 5);
+        
+    </script>
+</body>
+</html>
