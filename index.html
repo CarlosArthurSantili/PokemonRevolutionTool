@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Site com Timer Regressivo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f8f8f8;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    ul {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      list-style-type: square;
+      max-width: 400px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    #timer {
+      font-size: 32px;
+      font-weight: bold;
+      color: #d9534f;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Minha Página Compartilhável</h1>
+
+  <!-- Lista -->
+  <h2>Lista de Tarefas</h2>
+  <ul>
+    <li>Estudar HTML</li>
+    <li>Praticar JavaScript</li>
+    <li>Finalizar o site</li>
+  </ul>
+
+  <!-- Tabela -->
+  <h2>Tabela de Pontuação</h2>
+  <table>
+    <tr>
+      <th>Nome</th>
+      <th>Pontos</th>
+    </tr>
+    <tr>
+      <td>João</td>
+      <td>75</td>
+    </tr>
+    <tr>
+      <td>Maria</td>
+      <td>92</td>
+    </tr>
+  </table>
+
+  <!-- Timer Regressivo -->
+  <h2>Meu Timer Regressivo</h2>
+  <p id="timer">00:00</p>
+  <button onclick="startCountdown()">Iniciar</button>
+  <button onclick="pauseCountdown()">Pausar</button>
+  <button onclick="resetCountdown()">Resetar</button>
+
+  <script>
+    // Tempo inicial em segundos (ex: 5 minutos)
+    const initialTime = 5 * 60;
+    let currentSeconds = parseInt(localStorage.getItem("tempoRestante")) || initialTime;
+    let interval = null;
+
+    // Atualiza o display do timer
+    function updateDisplay() {
+      const min = Math.floor(currentSeconds / 60);
+      const sec = currentSeconds % 60;
+      document.getElementById("timer").textContent =
+        `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    // Inicia o timer
+    function startCountdown() {
+      if (interval) return;
+
+      interval = setInterval(() => {
+        if (currentSeconds > 0) {
+          currentSeconds--;
+          localStorage.setItem("tempoRestante", currentSeconds);
+          updateDisplay();
+        } else {
+          clearInterval(interval);
+          interval = null;
+          localStorage.removeItem("tempoRestante");
+          alert("Tempo esgotado!");
+        }
+      }, 1000);
+    }
+
+    // Pausa o timer
+    function pauseCountdown() {
+      clearInterval(interval);
+      interval = null;
+    }
+
+    // Reseta o timer
+    function resetCountdown() {
+      pauseCountdown();
+      currentSeconds = initialTime;
+      localStorage.setItem("tempoRestante", currentSeconds);
+      updateDisplay();
+    }
+
+    // Atualiza a tela ao carregar a página
+    updateDisplay();
+  </script>
+
+</body>
+</html>
