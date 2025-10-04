@@ -63,7 +63,6 @@ function IndependentTimer(containerId, initialSeconds) {
 
     function timerFinished() {
         clearInterval(countdownInterval);
-        clearState(); 
         
         startButton.disabled = false;
         startButton.textContent = "Iniciar Novamente";
@@ -119,7 +118,6 @@ function IndependentTimer(containerId, initialSeconds) {
                 } else {
                     timerFinished(); 
                     statusMessage.textContent = "✅ CONCLUÍDO (Offline)!";
-                    clearState();
                 }
             } catch (e) {
                 clearState();
