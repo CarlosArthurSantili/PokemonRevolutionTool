@@ -27,16 +27,6 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
-// --- FUNÇÕES DE LÓGICA DO TIMER ---
-
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-    return `${formattedMinutes}:${formattedSeconds}`;
-}
-
 function IndependentTimer(containerId, initialSeconds) {
     const container = document.getElementById(containerId);
     const display = container.querySelector('.timer-display');
@@ -136,7 +126,220 @@ function IndependentTimer(containerId, initialSeconds) {
 }
 
 // Inicializa os 4 timers
-new IndependentTimer('timer1', 10);
-new IndependentTimer('timer2', 60); 
-new IndependentTimer('timer3', 120); 
-new IndependentTimer('timer4', 5);
+new IndependentTimer('timer1', 20160);
+new IndependentTimer('timer2', 20160); 
+new IndependentTimer('timer3', 0); 
+new IndependentTimer('timer4', 0);
+new IndependentTimer('timer5', 0); 
+new IndependentTimer('timer6', 0); 
+new IndependentTimer('timer7', 0);
+new IndependentTimer('timer8', 0);
+
+document.querySelectorAll('.tab-button').forEach(button => {
+  button.addEventListener('click', () => {
+    const tabId = button.getAttribute('data-tab');
+
+    // Desativa todas as abas e botões
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+    // Ativa a aba clicada
+    button.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  });
+});
+
+// Função para formatar tempo em hh:mm:ss (usada só para timers não daily)
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+// Função para calcular segundos até próxima meia-noite UTC (usada só para timers não daily)
+function secondsUntilNextUTCmidnight() {
+    const now = new Date();
+    const nowUTC = new Date(now.toISOString());
+    const nextMidnightUTC = new Date(Date.UTC(
+        nowUTC.getUTCFullYear(),
+        nowUTC.getUTCMonth(),
+        nowUTC.getUTCDate() + 1, 0, 0, 0
+    ));
+    return Math.floor((nextMidnightUTC - nowUTC) / 1000);
+}
+
+document.querySelectorAll('.timer-box').forEach(timerBox => {
+    const title = timerBox.querySelector('h2').innerText.toLowerCase();
+    const display = timerBox.querySelector('.timer-display');
+    const button = timerBox.querySelector('.start-button');
+    const status = timerBox.querySelector('.status-message');
+
+    let intervalId = null;
+    let countdown = 0;
+
+    button.addEventListener('click', () => {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+            button.innerText = "Iniciar";
+            status.innerText = "Parado.";
+            return;
+        }
+
+        // Se o título contém "daily", calcula o tempo até meia-noite UTC
+        if (title.includes('daily')) {
+            countdown = secondsUntilNextUTCmidnight();
+        } else {
+            // Para timers não-daily, você pode definir um valor fixo, por exemplo:
+            // Aqui, só um exemplo: 1 hora
+            countdown = 1209600; 
+        }
+
+        status.innerText = "Contando...";
+
+        // Atualiza a exibição imediatamente
+        display.innerText = formatTime(countdown);
+
+        intervalId = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(intervalId);
+                intervalId = null;
+                display.innerText = "00:00:00";
+                status.innerText = "Tempo esgotado!";
+                button.innerText = "Iniciar";
+            } else {
+                display.innerText = formatTime(countdown);
+            }
+        }, 1000);
+
+        button.innerText = "Parar";
+    });
+});
+
+document.getElementById('reset-all-timers').addEventListener('click', () => {
+    if (!confirm("Deseja realmente resetar todos os timers?")) return;
+
+    document.querySelectorAll('.timer-box').forEach(timerBox => {
+        const title = timerBox.querySelector('h2').innerText.toLowerCase();
+        const display = timerBox.querySelector('.timer-display');
+        const button = timerBox.querySelector('.start-button');
+        const status = timerBox.querySelector('.status-message');
+
+        const storageKey = `${timerBox.id}_done_date`;
+
+        // Limpa o localStorage
+        localStorage.removeItem(storageKey);
+
+        // Se for daily, resetar UI
+        if (title.includes('daily')) {
+            display.innerText = "";
+            status.innerText = "Não feito.";
+            button.innerText = "Marcar como Feito";
+        }
+
+        // Opcional: se quiser resetar também contadores fixos (não daily), zere aqui
+        // Exemplo: parar qualquer contagem se estiver ativa
+        // if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    });
+
+    alert("Todos os timers foram resetados!");
+});
+
+// Guarda os intervalos ativos dos timers não-daily
+const activeTimers = {};
+
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+document.querySelectorAll('.timer-box').forEach(timerBox => {
+    const title = timerBox.querySelector('h2').innerText.toLowerCase();
+    const display = timerBox.querySelector('.timer-display');
+    const button = timerBox.querySelector('.start-button');
+    const status = timerBox.querySelector('.status-message');
+    const timerId = timerBox.id;
+    const storageKey = `${timerId}_done_date`;
+
+    // DAILY TIMERS
+    if (title.includes('daily')) {
+        const getTodayUTC = () => new Date().toISOString().split("T")[0];
+        const todayUTC = getTodayUTC();
+        const savedDate = localStorage.getItem(storageKey);
+        let isDone = savedDate === todayUTC;
+
+        updateDailyUI(isDone);
+
+        button.addEventListener('click', () => {
+            const done = localStorage.getItem(storageKey) === todayUTC;
+            if (!done) {
+                localStorage.setItem(storageKey, todayUTC);
+                updateDailyUI(true);
+            } else {
+                localStorage.removeItem(storageKey);
+                updateDailyUI(false);
+            }
+        });
+
+        function updateDailyUI(done) {
+            if (done) {
+                display.innerText = "✅ Feito!";
+                status.innerText = "Você já marcou este timer como feito hoje (UTC).";
+                button.innerText = "Desmarcar";
+            } else {
+                display.innerText = "";
+                status.innerText = "Não feito.";
+                button.innerText = "Marcar como Feito";
+            }
+        }
+
+    } else {
+        // FIXED COUNTDOWN TIMERS
+        let countdown = 0;
+        let intervalId = null;
+
+        button.addEventListener('click', () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+                activeTimers[timerId] = null;
+                button.innerText = "Iniciar";
+                status.innerText = "Parado.";
+                return;
+            }
+
+            // Ajustar tempo inicial conforme o timer
+            if (title.includes('dig route')) {
+                countdown = 604800; // 1 semana
+            } else if (title.includes('hoenn shrooms')) {
+                countdown = 1209600; // 2 semanas
+            } else {
+                countdown = 3600; // default
+            }
+
+            status.innerText = "Contando...";
+            display.innerText = formatTime(countdown);
+
+            intervalId = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                    activeTimers[timerId] = null;
+                    display.innerText = "00:00:00";
+                    status.innerText = "Tempo esgotado!";
+                    button.innerText = "Iniciar";
+                } else {
+                    display.innerText = formatTime(countdown);
+                }
+            }, 1000);
+
+            button.innerText = "Parar";
+            activeTimers[timerId] = intervalId;
+        });
+    }
+});

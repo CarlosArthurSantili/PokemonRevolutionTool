@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplos Timers com Navegação</title>
+    <title>Pokemon Revolution Tool</title>
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,45 +11,80 @@
 
     <div id="sidebar">
         <h2>Navegação</h2>
-        <a id="nav-menu" class="nav-link active" data-target="section-menu">🏠 Menu Principal</a>
-        <a id="nav-timer" class="nav-link" data-target="section-timer">⏱ Timers</a>
-        <a id="nav-pvp" class="nav-link" data-target="section-pvp">⚔ PvP</a>
+        <a class="nav-link active" data-target="section-menu">🏠 Main Menu</a>
+        <a class="nav-link" data-target="section-timer">⏱ Timers</a>
+        <a class="nav-link" data-target="section-excavation">⛏ Excavation</a>
+        <a class="nav-link" data-target="section-berries">🍓 Berries</a>
+        <a class="nav-link" data-target="section-hunt">🔍 Pokemon Hunt</a>
+        <a class="nav-link" data-target="section-mono">🎯 Mono Type Tournament</a>
+        <a class="nav-link" data-target="section-pvp-chest-rewards">🎁 PVP Chest Rewards</a>
+        <a class="nav-link" data-target="section-todo">📋 TODO List</a>
     </div>
 
     <div id="content">
         
         <div id="section-menu" class="content-section active">
-            <h1 class="timer-header">Bem-vindo ao Painel de Controle!</h1>
-            <p class="new-section-message">Use o menu lateral para alternar entre os Timers e a Área PvP.</p>
+            <h1 class="menu-header">Pokemon Revolution Tool</h1>
+            <p class="new-section-message">Use the side menu to navigate.</p>
         </div>
 
         <div id="section-timer" class="content-section">
-            <h1 class="timer-header">Múltiplos Timers Persistentes</h1>
+            <h1 class="menu-header">Timers</h1>
             
+            <button id="reset-all-timers" class="reset-button">🔄 Resetar todos os timers</button>
+
             <div id="timers-container">
                 <div id="timer1" class="timer-box">
-                    <h2>Tarefa A: Configuração (10s)</h2>
+                    <h2>Dig Route (1 week)</h2>
                     <div class="timer-display"></div>
                     <button class="start-button">Iniciar</button>
                     <div class="status-message"></div>
                 </div>
 
                 <div id="timer2" class="timer-box">
-                    <h2>Tarefa B: Análise (60s)</h2>
+                    <h2>Hoenn Shrooms (2 weeks?)</h2>
                     <div class="timer-display"></div>
                     <button class="start-button">Iniciar</button>
                     <div class="status-message"></div>
                 </div>
 
                 <div id="timer3" class="timer-box">
-                    <h2>Tarefa C: Execução (120s)</h2>
+                    <h2>Daily Excavation</h2>
                     <div class="timer-display"></div>
                     <button class="start-button">Iniciar</button>
                     <div class="status-message"></div>
                 </div>
 
                 <div id="timer4" class="timer-box">
-                    <h2>Tarefa D: Revisão (5s)</h2>
+                    <h2>Daily Solaceon</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer5" class="timer-box">
+                    <h2>Daily Celadon</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer6" class="timer-box">
+                    <h2>Daily BCC</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer7" class="timer-box">
+                    <h2>Daily Mono Type</h2>
+                    <div class="timer-display"></div>
+                    <button class="start-button">Iniciar</button>
+                    <div class="status-message"></div>
+                </div>
+
+                <div id="timer8" class="timer-box">
+                    <h2>Daily Sinnoh Underground</h2>
                     <div class="timer-display"></div>
                     <button class="start-button">Iniciar</button>
                     <div class="status-message"></div>
@@ -57,9 +92,458 @@
             </div>
         </div>
 
-        <div id="section-pvp" class="content-section">
-            <h1 class="timer-header">Área de Combate PvP</h1>
-            <p class="new-section-message">Esta seção está pronta para receber a lógica de Player vs Player.</p>
+        <div id="section-excavation" class="content-section">
+            <h1 class="menu-header">Excavation Sites & Recommended Pokémon</h1>
+
+            <div class="excavation-site">
+                <h2>Feral Site <span class="location">– Fiery Path (East of Lavaridge Town)</span></h2>
+                <ul>
+                    <li>Absol <span class="nature">(Adamant)</span></li>
+                    <li>Deino <span class="nature">(Timid / Modest)</span></li>
+                    <li>Pawniard <span class="nature">(Adamant)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Historical Site <span class="location">– Route 111 Desert (East of Lavaridge Town)</span></h2>
+                <ul>
+                    <li>Heracross <span class="nature">(Adamant)</span></li>
+                    <li>Hawlucha <span class="nature">(Adamant)</span></li>
+                    <li>Riolu <span class="nature">(Jolly / Adamant)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Glacial Site <span class="location">– Route 103 (North of Oldale Town)</span></h2>
+                <ul>
+                    <li>Shellder <span class="nature">(Jolly / Adamant)</span></li>
+                    <li>Sneasel <span class="nature">(Jolly / Adamant)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Haunted Site <span class="location">– Rusturf Tunnel (Near Verdanturf Town)</span></h2>
+                <ul>
+                    <li>Sableye <span class="nature">(Careful)</span></li>
+                    <li>Rotom <span class="nature">(Timid / Bold)</span></li>
+                    <li>Honedge <span class="nature">(Sassy)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Natural Site <span class="location">– Route 119A (South of Fortree City)</span></h2>
+                <ul>
+                    <li>Tangela</li>
+                    <li>Shroomish</li>
+                    <li>Venipede</li>
+                    <li>Ferroseed <span class="nature">(Sassy)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Mineral Site <span class="location">– Route 115 (North of Rustboro City)</span></h2>
+                <ul>
+                    <li>Beldum <span class="nature">(Jolly)</span></li>
+                    <li>Drilbur <span class="nature">(Jolly)</span></li>
+                    <li>Larvitar <span class="nature">(Adamant)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Wondrous Site <span class="location">– Route 114 (West of Fallarbor Town)</span></h2>
+                <ul>
+                    <li>Klefki</li>
+                    <li>Porygon <span class="nature">(Timid / Bold)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Briny Site <span class="location">– Route 124 (West of Mossdeep Town)<br><small>Requirement: 6000+ discoveries</small></span></h2>
+                <ul>
+                    <li>Alomomola</li>
+                    <li>Mudkip <span class="nature">(Adamant)</span></li>
+                </ul>
+            </div>
+
+            <div class="excavation-site">
+                <h2>Draconic Site <span class="location">– Route 113 (East of Fallabor Town)<br><small>Requirement: 10,000+ discoveries</small></span></h2>
+                <ul>
+                    <li>Dratini <span class="nature">(Adamant)</span></li>
+                    <li>Gible <span class="nature">(Jolly)</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+
+        <div id="section-berries" class="content-section">
+            <h1 class="menu-header">Berries</h1>
+            <p class="new-section-message">Conteúdo sobre berries (frutas) vai aqui.</p>
+
+            <p class="warning-message">
+                🚧 This section is under construction!
+            </p>
+        </div>
+
+        <div id="section-hunt" class="content-section">
+            <h1 class="menu-header">Pokémon Hunt</h1>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="any-ability-hunt">Any Ability</button>
+                <button class="tab-button active" data-tab="ha-hunt">Hidden Ability (HA)</button>
+                <button class="tab-button" data-tab="no-ha-hunt">Without Hidden Ability (No HA)</button>
+            </div>
+
+            <div id="any-ability-hunt" class="tab-content">
+                <h2>Pokémon Hunt – Any Ability</h2>
+                <ul>
+                    <li><strong>Clefable</strong> — Suggested Location: ?</li>
+                    <li><strong>Gyarados</strong> — Suggested Location: ?</li>
+                    ...
+                </ul>
+            </div>
+
+            <div id="ha-hunt" class="tab-content active">
+                <h2>Pokémon Hunt – Hidden Ability</h2>
+                <ul>
+                    <li><strong>Mankey / Primeape / Annihilape</strong> — Suggested Location: ?</li>
+                    <li><strong>Snivy</strong> — Suggested Location: ?</li>
+                    <li><strong>Abra</strong> — Suggested Location: ?</li>
+                    <li><strong>Dragonite</strong> — Suggested Location: ?</li>
+                    <li><strong>Venipede</strong> — Suggested Location: ?</li>
+                    <li><strong>Gligar / Gliscor</strong> — Suggested Location: ?</li>
+                    <li><strong>Nidoqueen</strong> — Suggested Location: ?</li>
+                    <li><strong>Corphish / Crawdaunt</strong> — Suggested Location: ?</li>
+                    <li><strong>Marowak-Alola</strong> — Suggested Location: ?</li>
+                    <li><strong>Bulbasaur / Ivysaur / Venusaur</strong> — Suggested Location: ?</li>
+                    <li><strong>Bunnelby</strong> — Suggested Location: ?</li>
+                </ul>
+            </div>
+
+            <div id="no-ha-hunt" class="tab-content">
+                <h2>Pokémon Hunt – Without Hidden Ability</h2>
+                <ul>
+                    <li><strong>Pawniard</strong> — Suggested Location: ?</li>
+                    <li><strong>Torkoal</strong> — Suggested Location: ?</li>
+                    <li><strong>Teddiursa / Ursaluna</strong> — Suggested Location: ?</li>
+                    <li><strong>Darumaka / Darmanitan</strong> — Suggested Location: ?</li>
+                    <li><strong>Grimer-Alola / Muk-Alola</strong> — Suggested Location: ?</li>
+                    <li><strong>Raichu-Alola</strong> — Suggested Location: ?</li>
+                    <li><strong>Mimikyu</strong> — Suggested Location: ?</li>
+                    <li><strong>Honedge / Doublade / Aegislash</strong> — Suggested Location: ?</li>
+                    <li><strong>Electrike / Manectric</strong> — Suggested Location:?</li>
+                </ul>
+            </div>
+
+            
+        </div>
+
+        <div id="section-mono" class="content-section">
+            <h1 class="menu-header">Mono Type Tournament</h1>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="enemy-teams">👥 Enemy Teams</button>
+                <button class="tab-button" data-tab="my-teams">🧠 Teams / Strategies</button>
+            </div>
+
+            <div id="enemy-teams" class="tab-content active">
+                <p>Below is a list of known enemy teams used in the Mono Type Tournament. Each trainer has two mono-type teams composed of three Pokémon each.</p>
+
+                <div class="trainer-list">
+
+                    <h3>Koga</h3>
+                    <ul>
+                        <li><strong>Poison:</strong> Muk, Crobat, Venomoth</li>
+                        <li><strong>Bug:</strong> Forretress, Ariados, Venomoth</li>
+                    </ul>
+
+                    <h3>Gardenia</h3>
+                    <ul>
+                        <li><strong>Grass:</strong> Breloom, Torterra, Roserade</li>
+                        <li><strong>Flying:</strong> Vespiquen, Jumpluff, Tropius</li>
+                    </ul>
+
+                    <h3>Flint</h3>
+                    <ul>
+                        <li><strong>Fire:</strong> Ninetales, Mega Houndoom, Infernape</li>
+                        <li><strong>Ghost:</strong> Alolan-Marowak, Chandelure (Ghost-Z), Drifblim</li>
+                    </ul>
+
+                    <h3>Maylene</h3>
+                    <ul>
+                        <li><strong>Fighting:</strong> Machamp, Medicham, Mega Lucario</li>
+                        <li><strong>Psychic:</strong> Grumpig, Gallade, Mega Medicham</li>
+                    </ul>
+
+                    <h3>Giovanni</h3>
+                    <ul>
+                        <li><strong>Ground:</strong> Rhyperior, Nidoking, Mega Steelix</li>
+                        <li><strong>Normal:</strong> Tauros, Persian, Mega Kangaskhan</li>
+                    </ul>
+
+                    <h3>Nurse Joy</h3>
+                    <ul>
+                        <li><strong>Normal:</strong> Wigglytuff, Chansey, Mega Audino</li>
+                        <li><strong>Grass:</strong> Meganium, Vileplume, Mega Venusaur</li>
+                    </ul>
+
+                    <h3>Lorelei</h3>
+                    <ul>
+                        <li><strong>Ice:</strong> Jynx, Cloyster, Lapras</li>
+                        <li><strong>Water:</strong> Cloyster, Lapras, Mega Slowbro</li>
+                    </ul>
+
+                    <h3>Steven</h3>
+                    <ul>
+                        <li><strong>Steel:</strong> Skarmory, Aggron, Mega Metagross</li>
+                        <li><strong>Rock:</strong> Cradily, Armaldo (Rock-Z), ???</li>
+                    </ul>
+
+                    <h3>Bertha</h3>
+                    <ul>
+                        <li><strong>Rock:</strong> Sudowoodo, Golem, Rhyperior</li>
+                        <li><strong>Ground:</strong> Gliscor, Hippowdon, Rhyperior</li>
+                    </ul>
+
+                    <h3>Greta</h3>
+                    <ul>
+                        <li><strong>Ghost:</strong> Mismagius, Shedinja, Mega Gengar</li>
+                        <li><strong>Fighting:</strong> Heracross, Hariyama, Mega Medicham</li>
+                    </ul>
+
+                    <h3>Byron</h3>
+                    <ul>
+                        <li><strong>Steel:</strong> Bronzong, Mega Steelix, Bastiodon</li>
+                        <li><strong>Rock:</strong> Golem, Carracosta, Probopass</li>
+                    </ul>
+
+                    <h3>Wallace</h3>
+                    <ul>
+                        <li><strong>Water:</strong> Politoed, Mega Swampert, Milotic</li>
+                        <li><strong>Ground:</strong> Seismitoad, Whiscash, Mega Swampert</li>
+                    </ul>
+
+                    <h3>Drake</h3>
+                    <ul>
+                        <li><strong>Dragon:</strong> Flygon, Haxorus (Dragon-Z), Mega Salamence</li>
+                        <li><strong>Flying:</strong> Noivern, Altaria, Mega Salamence</li>
+                    </ul>
+
+                    <h3>Anabel</h3>
+                    <ul>
+                        <li><strong>Steel:</strong> Bronzong, Metagross, Mega Lucario</li>
+                        <li><strong>Psychic:</strong> Alakazam, Metagross, Mega Latios</li>
+                    </ul>
+
+                    <h3>Volkner</h3>
+                    <ul>
+                        <li><strong>Electric:</strong> Raichu, Luxray, Electivire</li>
+                        <li><strong>Water:</strong> Pelipper, Lanturn, Octillery</li>
+                    </ul>
+
+                    <h3>Bruno</h3>
+                    <ul>
+                        <li><strong>Fighting:</strong> Hitmonchan, Hitmonlee, Machamp</li>
+                        <li><strong>Rock:</strong> Onix, Alolan Golem, Rhyperior (Rock-Z)</li>
+                    </ul>
+
+                    <h3>Agatha</h3>
+                    <ul>
+                        <li><strong>Ghost:</strong> Mismagius (Z), Alolan-Marowak, Mega Gengar</li>
+                        <li><strong>Poison:</strong> Arbok, Crobat, Mega Gengar</li>
+                    </ul>
+
+                    <h3>Erika</h3>
+                    <ul>
+                        <li><strong>Grass:</strong> ???</li>
+                        <li><strong>Poison:</strong> Victreebel, Vileplume, Mega Venusaur</li>
+                    </ul>
+
+                    <h3>Roxanne</h3>
+                    <ul>
+                        <li><strong>Rock:</strong> Golem, Carracosta, Probopass (Rock-Z)</li>
+                        <li><strong>Steel:</strong> Steelix, Mega Aggron, Probopass</li>
+                    </ul>
+
+                    <h3>Lance</h3>
+                    <ul>
+                        <li><strong>Dragon:</strong> Salamence, Mega Garchomp, Dragonite (Dragon-Z)</li>
+                        <li><strong>Flying:</strong> Aerodactyl, Mega Charizard X, Dragonite</li>
+                    </ul>
+
+                    <h3>Clair</h3>
+                    <ul>
+                        <li><strong>Dragon:</strong> Druddigon, Mega Altaria, Kingdra</li>
+                        <li><strong>Water:</strong> Pelipper, Gyarados, Kingdra (Z)</li>
+                    </ul>
+
+                    <h3>Juan</h3>
+                    <ul>
+                        <li><strong>Water:</strong> Politoed, Crawdaunt, Kingdra</li>
+                        <li><strong>Ice:</strong> ???</li>
+                    </ul>
+
+                    <h3>Bill</h3>
+                    <ul>
+                        <li><strong>Psychic:</strong> Mr. Mime, Alakazam, Espeon</li>
+                        <li><strong>Fairy:</strong> ???</li>
+                    </ul>
+
+                    <h3>Sidney</h3>
+                    <ul>
+                        <li><strong>Dark:</strong> Scrafty, Crawdaunt, Mega Absol</li>
+                        <li><strong>Grass:</strong> Cacturne, Shiftry, Mega Sceptile</li>
+                    </ul>
+
+                    <h3>Whitney</h3>
+                    <ul>
+                        <li><strong>Normal:</strong> Ursaring, Miltank, Mega Lopunny</li>
+                        <li><strong>Fairy:</strong> Wigglytuff, Mr. Mime, Clefable</li>
+                    </ul>
+
+                    <h3>Pryce</h3>
+                    <ul>
+                        <li><strong>Ice:</strong> Jynx, Weavile, Mamoswine</li>
+                        <li><strong>Water:</strong> Dewgong, Lapras, Cloyster</li>
+                    </ul>
+
+                    <h3>Karen</h3>
+                    <ul>
+                        <li><strong>Dark:</strong> Umbreon, Honchkrow, Mega Houndoom</li>
+                        <li><strong>Ghost:</strong> Spiritomb, Mismagius, Mega Gengar</li>
+                    </ul>
+
+                    <h3>Sabrina</h3>
+                    <ul>
+                        <li><strong>Psychic:</strong> Slowbro, Mr. Mime, Mega Alakazam</li>
+                        <li><strong>Water:</strong> Slowking, Lapras, Mega Slowbro</li>
+                    </ul>
+
+                    <h3>Misty</h3>
+                    <ul>
+                        <li><strong>Water:</strong> Golduck, Starmie (Water-Z), Mega Gyarados</li>
+                        <li><strong>Flying:</strong> Swanna, Togekiss, Mega Gyarados</li>
+                    </ul>
+
+                    <h3>Jenny</h3>
+                    <ul>
+                        <li><strong>Fire:</strong> Ninetales, Arcanine, Mega Houndoom</li>
+                        <li><strong>Water:</strong> Swanna, Feraligatr, Mega Blastoise</li>
+                    </ul>
+
+                    <h3>Jasmine</h3>
+                    <ul>
+                        <li><strong>Steel:</strong> Skarmory, Magnezone, Mega Steelix</li>
+                        <li><strong>Electric:</strong> Electrode, Magnezone, Mega Ampharos</li>
+                    </ul>
+
+                    <h3>Bugsy</h3>
+                    <ul>
+                        <li><strong>Bug:</strong> Armaldo, Shedinja, Mega Scizor</li>
+                        <li><strong>Flying:</strong> Vespiquen, Yanmega, Mega Pinsir</li>
+                    </ul>
+
+                    <h3>Candice</h3>
+                    <ul>
+                        <li><strong>Ice:</strong> Mamoswine, Weavile, Mega Abomasnow</li>
+                        <li><strong>Psychic:</strong> Slowking, Jynx, Mega Medicham</li>
+                    </ul>
+
+                    <h3>Falkner</h3>
+                    <ul>
+                        <li><strong>Flying:</strong> Swellow, Honchkrow, Mega Pidgeot</li>
+                        <li><strong>Normal:</strong> Swellow, Dodrio, Mega Pidgeot</li>
+                    </ul>
+
+                </div>
+            </div>
+
+
+            <div id="my-teams" class="tab-content">
+                <p>Write your own teams, strategies, combos, and counters here.</p>
+                <!-- Exemplo de conteúdo -->
+                <ul>
+                    <li>Rain Team with Swift Swim – counters Fire and Rock</li>
+                    <li>Mono Fairy anti-Dragon strategy</li>
+                    <li>Status-based stall team</li>
+                </ul>
+            </div>
+        </div>
+
+
+        <div id="section-rewards" class="content-section">
+            <h1 class="menu-header">PVP Rewards</h1>
+            <p class="new-section-message">Tabela ou lista de recompensas de PvP.</p>
+
+            <p class="warning-message">
+                🚧 This section is under construction!
+            </p>
+        </div>
+
+        <div id="section-pvp-chest-rewards" class="content-section">
+            <h1 class="menu-header">PVP Chest Rewards</h1>
+
+            <p class="warning-message">
+                🚧 This section is under construction!
+            </p>
+
+            <h2>Recompensas Disponíveis:</h2>
+            <ul>
+                <li><strong>TM</strong>
+                    <ul>
+                        <li>Fake Tears</li>
+                        <li>Body Press</li>
+                        <li>Psybeam</li>
+                        <li>Metal Claw</li>
+                        <li>Rock Blast</li>
+                        <li>Toxic Spikes</li>
+                        <li>Scary Face</li>
+                        <li>Ice Fang</li>
+                        <li>Fire Fang</li>
+                        <li>Thunder Fang</li>
+                        <li>Acid Spray</li>
+                        <li>Struggle Bug</li>
+                        <li>Vacuum Wave</li>
+                        <li>Imprison</li>
+                        <li>Tailwind</li>
+                    </ul>
+                </li>
+                <li><strong>Reroll Ticket</strong> (Untradable)</li>
+            </ul>
+        </div>
+
+        <div id="section-todo" class="content-section">
+            '<h1 class="menu-header">TODO List</h1>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="todo-tms">TMs</button>
+                <button class="tab-button" data-tab="todo-bosses">Bosses</button>
+                <button class="tab-button" data-tab="todo-evolutions">Evolutions</button>
+            </div>
+
+            <div id="todo-tms" class="tab-content active">
+                <h2>Lista de TMs</h2>
+                <ul>
+                    <li>Exemplo: TM Thunderbolt</li>
+                    <li>Exemplo: TM Ice Beam</li>
+                </ul>
+            </div>
+
+            <div id="todo-bosses" class="tab-content">
+                <h2>Lista de Bosses</h2>
+                <ul>
+                    <li>Exemplo: Boss Brock</li>
+                    <li>Exemplo: Boss Misty</li>
+                </ul>
+            </div>
+
+            <div id="todo-evolutions" class="tab-content">
+                <h2>Lista de Evoluções</h2>
+                <ul>
+                    <li>Exemplo: Eevee → Vaporeon</li>
+                    <li>Exemplo: Machoke → Machamp</li>
+                </ul>
+            </div>
         </div>
         
     </div>
