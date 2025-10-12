@@ -6,18 +6,21 @@
     <title>Pokemon Revolution Tool</title>
     
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="PokemonListGrid/modal.css">
+    <link rel="stylesheet" href="PokemonListGrid/pokemon.css">
 </head>
 <body>
 
     <div id="sidebar">
         <h2>Navegação</h2>
         <a class="nav-link active" data-target="section-menu">🏠 Main Menu</a>
+        <a class="nav-link" data-target="section-pokemons">🐾 Pokemons</a>
         <a class="nav-link" data-target="section-timer">⏱ Timers</a>
         <a class="nav-link" data-target="section-excavation">⛏ Excavation</a>
         <a class="nav-link" data-target="section-berries">🍓 Berries</a>
-        <a class="nav-link" data-target="section-hunt">🔍 Pokemon Hunt</a>
+        <a class="nav-link" data-target="section-hunt">🔍 Pokemon Hunt</a>        
         <a class="nav-link" data-target="section-mono">🎯 Mono Type Tournament</a>
-        <a class="nav-link" data-target="section-pvp-chest-rewards">🎁 PVP Chest Rewards</a>
+        <a class="nav-link" data-target="section-pvp-chest-rewards">🎁 PVP Chest Rewards</a>        
         <a class="nav-link" data-target="section-todo">📋 TODO List</a>
     </div>
 
@@ -512,6 +515,80 @@
             </ul>
         </div>
 
+        <div id="section-pokemons" class="content-section">
+            <h1 class="menu-header">Pokémons</h1>
+            
+            <div class="pokemon-controls">
+                <div class="search-container">
+                    <input type="text" id="pokemon-search" placeholder="Buscar pokémon...">
+                    <select id="generation-filter">
+                        <option value="">Todas as Gerações</option>
+                        <option value="1">Geração I (1-151)</option>
+                        <option value="2">Geração II (152-251)</option>
+                        <option value="3">Geração III (252-386)</option>
+                        <option value="4">Geração IV (387-493)</option>
+                        <option value="5">Geração V (494-649)</option>
+                        <option value="6">Geração VI (650-721)</option>
+                        <option value="7">Geração VII (722-809)</option>
+                        <option value="8">Geração VIII (810-905)</option>
+                    </select>
+                </div>
+                <div class="loading-container">
+                    <div id="loading-spinner" class="loading-spinner" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Carregando pokémons...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pokemons-container">
+                <!-- Os pokémons serão carregados aqui -->
+            </div>
+
+            <!-- Modal de detalhes do pokémon -->
+            <div id="pokemon-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close">&times;</span>
+                        <h2 id="modal-pokemon-name">Nome do Pokémon</h2>
+                        <div id="modal-pokemon-id">#001</div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="pokemon-main-info">
+                            <div class="pokemon-image-section">
+                                <img id="modal-pokemon-image" src="" alt="Pokémon">
+                                <div id="modal-pokemon-types" class="pokemon-types"></div>
+                            </div>
+                            <div class="pokemon-detailed-stats">
+                                <h3>Estatísticas Base</h3>
+                                <div id="modal-pokemon-stats" class="stats-container"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="pokemon-type-effectiveness">
+                            <div class="effectiveness-section">
+                                <h3>Fraquezas (2x dano)</h3>
+                                <div id="modal-pokemon-weaknesses" class="type-effectiveness"></div>
+                            </div>
+                            <div class="effectiveness-section">
+                                <h3>Resistências (0.5x dano)</h3>
+                                <div id="modal-pokemon-resistances" class="type-effectiveness"></div>
+                            </div>
+                            <div class="effectiveness-section">
+                                <h3>Imunidades (0x dano)</h3>
+                                <div id="modal-pokemon-immunities" class="type-effectiveness"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="pokemon-abilities">
+                            <h3>Habilidades</h3>
+                            <div id="modal-pokemon-abilities" class="abilities-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="section-todo" class="content-section">
             '<h1 class="menu-header">TODO List</h1>
 
@@ -549,5 +626,7 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="PokemonListGrid/modal.js"></script>
+    <script src="PokemonListGrid/pokemon.js"></script>
 </body>
 </html>
