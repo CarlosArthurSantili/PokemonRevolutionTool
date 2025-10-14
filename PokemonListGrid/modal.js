@@ -22,6 +22,26 @@ const typeEffectiveness = {
     fairy: { weaknesses: ['poison', 'steel'], resistances: ['fighting', 'bug', 'dark'], immunities: ['dragon'] }
 };
 
+// Função de teste para verificar cálculos de efetividade
+function testTypeEffectiveness() {
+    // Teste Parasect (Bug/Grass) - deve ter 4x fraqueza ao Fire
+    const parasectTypes = [{ type: { name: 'bug' } }, { type: { name: 'grass' } }];
+    const parasectEffectiveness = calculateTypeEffectiveness(parasectTypes);
+    
+    const fireWeakness = parasectEffectiveness.weaknesses.find(w => w.type === 'fire');
+    console.log('Parasect Fire weakness:', fireWeakness ? fireWeakness.multiplier : 'None');
+    
+    // Teste Charizard (Fire/Flying) - deve ter 4x fraqueza ao Rock  
+    const charizardTypes = [{ type: { name: 'fire' } }, { type: { name: 'flying' } }];
+    const charizardEffectiveness = calculateTypeEffectiveness(charizardTypes);
+    
+    const rockWeakness = charizardEffectiveness.weaknesses.find(w => w.type === 'rock');
+    console.log('Charizard Rock weakness:', rockWeakness ? rockWeakness.multiplier : 'None');
+}
+
+// Descomente a linha abaixo para testar
+// testTypeEffectiveness();
+
 // Cache para armazenar dados de evolução
 const evolutionCache = new Map();
 
@@ -708,16 +728,16 @@ function calculateTypeEffectiveness(pokemonTypes) {
         if (effectiveness === 0) {
             finalImmunities.push(attackingType);
         } else if (effectiveness > 1) {
-            finalWeaknesses.push(attackingType);
+            finalWeaknesses.push({ type: attackingType, multiplier: effectiveness });
         } else if (effectiveness < 1) {
-            finalResistances.push(attackingType);
+            finalResistances.push({ type: attackingType, multiplier: effectiveness });
         }
     });
     
     return {
-        weaknesses: [...new Set(finalWeaknesses)],
-        resistances: [...new Set(finalResistances)],
-        immunities: [...new Set(finalImmunities)]
+        weaknesses: finalWeaknesses,
+        resistances: finalResistances,
+        immunities: finalImmunities
     };
 }
 
@@ -761,12 +781,18 @@ function openPokemonModal(pokemon) {
     
     document.getElementById('modal-pokemon-weaknesses').innerHTML = 
         effectiveness.weaknesses.length > 0 
-            ? effectiveness.weaknesses.map(type => `<span class="pokemon-type type-${type}">${type}</span>`).join('')
+            ? effectiveness.weaknesses.map(weakness => {
+                const multiplierText = weakness.multiplier === 4 ? ' (4×)' : weakness.multiplier === 2 ? ' (2×)' : '';
+                return `<span class="pokemon-type type-${weakness.type}">${weakness.type}${multiplierText}</span>`;
+            }).join('')
             : '<span style="color: #666;">Nenhuma</span>';
     
     document.getElementById('modal-pokemon-resistances').innerHTML = 
         effectiveness.resistances.length > 0 
-            ? effectiveness.resistances.map(type => `<span class="pokemon-type type-${type}">${type}</span>`).join('')
+            ? effectiveness.resistances.map(resistance => {
+                const multiplierText = resistance.multiplier === 0.25 ? ' (¼×)' : resistance.multiplier === 0.5 ? ' (½×)' : '';
+                return `<span class="pokemon-type type-${resistance.type}">${resistance.type}${multiplierText}</span>`;
+            }).join('')
             : '<span style="color: #666;">Nenhuma</span>';
     
     document.getElementById('modal-pokemon-immunities').innerHTML = 
