@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="PokemonListGrid/modal.css">
     <link rel="stylesheet" href="PokemonListGrid/pokemon.css">
+    <link rel="stylesheet" href="PokemonListGrid/team.css">
 </head>
 <body>
 
@@ -15,6 +16,7 @@
         <h2>Navegação</h2>
         <a class="nav-link active" data-target="section-menu">🏠 Main Menu</a>
         <a class="nav-link" data-target="section-pokemons">🐾 Pokemons</a>
+        <a class="nav-link" data-target="section-team">👥 Pokemon Team</a>
         <a class="nav-link" data-target="section-timer">⏱ Timers</a>
         <a class="nav-link" data-target="section-excavation">⛏ Excavation</a>
         <a class="nav-link" data-target="section-berries">🍓 Berries</a>
@@ -544,83 +546,249 @@
                 </div>
             </div>
 
+            <!-- Área de detalhes inline do pokémon -->
+            <div id="pokemon-inline-details" class="pokemon-inline-details" style="display: none;">
+                <div class="inline-header">
+                    <div class="inline-title-section">
+                        <h2 id="inline-pokemon-name">Nome do Pokémon</h2>
+                        <div id="inline-pokemon-id">#001</div>
+                    </div>
+                    <button id="close-inline-details" class="close-inline-btn" onclick="closeInlineDetails()">
+                        ← Voltar à Listagem
+                    </button>
+                </div>
+                
+                <div class="inline-body">
+                    <div class="pokemon-main-info">
+                        <div class="pokemon-image-section">
+                            <img id="inline-pokemon-image" src="" alt="Pokémon">
+                            <div id="inline-pokemon-types" class="pokemon-types"></div>
+                        </div>
+                        <div class="pokemon-detailed-stats">
+                            <h3>Estatísticas Base</h3>
+                            <div id="inline-pokemon-stats" class="stats-container"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pokemon-evolutions">
+                        <h3>Linha Evolutiva</h3>
+                        <div id="inline-pokemon-evolutions" class="evolutions-container">
+                            <div class="evolution-loading">Carregando evoluções...</div>
+                        </div>
+                    </div>
+
+                    <div class="pokemon-type-effectiveness">
+                        <div class="effectiveness-section">
+                            <h3>Fraquezas</h3>
+                            <div id="inline-pokemon-weaknesses" class="type-effectiveness"></div>
+                        </div>
+                        <div class="effectiveness-section">
+                            <h3>Resistências</h3>
+                            <div id="inline-pokemon-resistances" class="type-effectiveness"></div>
+                        </div>
+                        <div class="effectiveness-section">
+                            <h3>Imunidades (0x dano)</h3>
+                            <div id="inline-pokemon-immunities" class="type-effectiveness"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pokemon-abilities">
+                        <h3>Habilidades</h3>
+                        <div id="inline-pokemon-abilities" class="abilities-container"></div>
+                    </div>
+                                                                    
+                    <div class="pokemon-moves">
+                        <h3>Movimentos</h3>
+                        <div class="moves-tabs">
+                            <button class="moves-tab-btn active" data-tab="inline-all-moves">Todos</button>
+                            <button class="moves-tab-btn" data-tab="inline-level-moves">Por Nível</button>
+                            <button class="moves-tab-btn" data-tab="inline-tm-hm-moves">TM/HM</button>
+                        </div>
+                        
+                        <div class="moves-filter">
+                            <div class="moves-search-wrapper">
+                                <input type="text" id="inline-moves-search" placeholder="Buscar movimento...">
+                                <button type="button" id="inline-clear-moves-search" class="clear-moves-search-btn" title="Limpar busca">×</button>
+                            </div>
+                        </div>
+                        
+                        <div class="moves-content">
+                            <div id="inline-all-moves" class="moves-tab-content active">
+                                <div class="moves-loading">Carregando todos os movimentos...</div>
+                            </div>
+                            <div id="inline-level-moves" class="moves-tab-content">
+                                <div class="moves-loading">Carregando movimentos por nível...</div>
+                            </div>
+                            <div id="inline-tm-hm-moves" class="moves-tab-content">
+                                <div class="moves-loading">Carregando TMs e HMs...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="pokemons-container">
                 <!-- Os pokémons serão carregados aqui -->
             </div>
+        </div>     
 
-            <!-- Modal de detalhes do pokémon -->
-            <div id="pokemon-modal" class="modal" style="display: none;">
+        <div id="section-team" class="content-section">
+            <h1 class="menu-header">Pokemon Team</h1>
+            
+            <div class="team-controls">
+                <button onclick="clearTeam()" class="team-btn clear-btn">🗑 Limpar Team</button>
+                <button onclick="exportTeam()" class="team-btn export-btn">📤 Exportar Team</button>
+                <button onclick="triggerImportTeam()" class="team-btn import-btn">📥 Importar Team</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importTeam(event)">
+            </div>
+            
+            <div class="team-container">
+                <div class="team-slots">
+                    <div class="team-slot" data-slot="0">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(0)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-slot" data-slot="1">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(1)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-slot" data-slot="2">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(2)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-slot" data-slot="3">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(3)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-slot" data-slot="4">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(4)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-slot" data-slot="5">
+                        <div class="pokemon-slot empty" onclick="openPokemonSelector(5)">
+                            <div class="add-pokemon">+</div>
+                        </div>
+                        <div class="moves-slots">
+                            <div class="move-slot empty" data-move="0"></div>
+                            <div class="move-slot empty" data-move="1"></div>
+                            <div class="move-slot empty" data-move="2"></div>
+                            <div class="move-slot empty" data-move="3"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="team-analysis">
+                    <h2>Análise do Time</h2>
+                    
+                    <div class="analysis-section">
+                        <h3>Tipos de Ataques Cobertos</h3>
+                        <div id="covered-types" class="type-coverage"></div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3>Tipos de Ataques Não Cobertos</h3>
+                        <div id="uncovered-types" class="type-coverage"></div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3>Pontos Fracos do Time</h3>
+                        <div id="team-weaknesses" class="weakness-analysis"></div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3>Resistências do Time</h3>
+                        <div id="team-resistances" class="resistance-analysis"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para selecionar Pokémon -->
+            <div id="pokemon-selector-modal" class="modal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <span class="close">&times;</span>
-                        <h2 id="modal-pokemon-name">Nome do Pokémon</h2>
-                        <div id="modal-pokemon-id">#001</div>
+                        <span class="close" onclick="closePokemonSelector()">&times;</span>
+                        <h2>Selecione um Pokémon</h2>
                     </div>
                     <div class="modal-body">
-                        <div class="pokemon-main-info">
-                            <div class="pokemon-image-section">
-                                <img id="modal-pokemon-image" src="" alt="Pokémon">
-                                <div id="modal-pokemon-types" class="pokemon-types"></div>
-                            </div>
-                            <div class="pokemon-detailed-stats">
-                                <h3>Estatísticas Base</h3>
-                                <div id="modal-pokemon-stats" class="stats-container"></div>
-                            </div>
+                        <div class="pokemon-search-container">
+                            <input type="text" id="team-pokemon-search" placeholder="Buscar pokémon...">
+                            <select id="team-generation-filter">
+                                <option value="">Todas as Gerações</option>
+                                <option value="1">Geração I (1-151)</option>
+                                <option value="2">Geração II (152-251)</option>
+                                <option value="3">Geração III (252-386)</option>
+                                <option value="4">Geração IV (387-493)</option>
+                                <option value="5">Geração V (494-649)</option>
+                                <option value="6">Geração VI (650-721)</option>
+                                <option value="7">Geração VII (722-809)</option>
+                                <option value="8">Geração VIII (810-905)</option>
+                            </select>
                         </div>
-                        
-                        <div class="pokemon-evolutions">
-                            <h3>Linha Evolutiva</h3>
-                            <div id="modal-pokemon-evolutions" class="evolutions-container">
-                                <div class="evolution-loading">Carregando evoluções...</div>
-                            </div>
+                        <div id="pokemon-selector-grid" class="pokemon-grid">
+                            <!-- Pokémons serão carregados aqui -->
                         </div>
-
-                        <div class="pokemon-type-effectiveness">
-                            <div class="effectiveness-section">
-                                <h3>Fraquezas</h3>
-                                <div id="modal-pokemon-weaknesses" class="type-effectiveness"></div>
-                            </div>
-                            <div class="effectiveness-section">
-                                <h3>Resistências</h3>
-                                <div id="modal-pokemon-resistances" class="type-effectiveness"></div>
-                            </div>
-                            <div class="effectiveness-section">
-                                <h3>Imunidades (0x dano)</h3>
-                                <div id="modal-pokemon-immunities" class="type-effectiveness"></div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para selecionar Movimentos -->
+            <div id="move-selector-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close" onclick="closeMoveSelector()">&times;</span>
+                        <h2>Selecione um Movimento</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="move-search-container">
+                            <input type="text" id="move-search" placeholder="Buscar movimento...">
+                            <select id="move-type-filter">
+                                <option value="">Todos os tipos</option>
+                                <option value="level">Por Nível</option>
+                                <option value="machine">TM/HM</option>
+                            </select>
                         </div>
-                        
-                        <div class="pokemon-abilities">
-                            <h3>Habilidades</h3>
-                            <div id="modal-pokemon-abilities" class="abilities-container"></div>
-                        </div>
-                                                                        
-                        <div class="pokemon-moves">
-                            <h3>Movimentos</h3>
-                            <div class="moves-tabs">
-                                <button class="moves-tab-btn active" data-tab="all-moves">Todos</button>
-                                <button class="moves-tab-btn" data-tab="level-moves">Por Nível</button>
-                                <button class="moves-tab-btn" data-tab="tm-hm-moves">TM/HM</button>
-                            </div>
-                            
-                            <div class="moves-filter">
-                                <div class="moves-search-wrapper">
-                                    <input type="text" id="moves-search" placeholder="Buscar movimento...">
-                                    <button type="button" id="clear-moves-search" class="clear-moves-search-btn" title="Limpar busca">×</button>
-                                </div>
-                            </div>
-                            
-                            <div class="moves-content">
-                                <div id="all-moves" class="moves-tab-content active">
-                                    <div class="moves-loading">Carregando todos os movimentos...</div>
-                                </div>
-                                <div id="level-moves" class="moves-tab-content">
-                                    <div class="moves-loading">Carregando movimentos por nível...</div>
-                                </div>
-                                <div id="tm-hm-moves" class="moves-tab-content">
-                                    <div class="moves-loading">Carregando TMs e HMs...</div>
-                                </div>
-                            </div>
+                        <div id="move-selector-list" class="move-list">
+                            <!-- Movimentos serão carregados aqui -->
                         </div>
                     </div>
                 </div>
@@ -628,7 +796,7 @@
         </div>
 
         <div id="section-todo" class="content-section">
-            '<h1 class="menu-header">TODO List</h1>
+            <h1 class="menu-header">TODO List</h1>
 
             <div class="tabs">
                 <button class="tab-button active" data-tab="todo-tms">TMs</button>
@@ -666,5 +834,6 @@
     <script src="script.js"></script>
     <script src="PokemonListGrid/modal.js"></script>
     <script src="PokemonListGrid/pokemon.js"></script>
+    <script src="PokemonListGrid/team.js"></script>
 </body>
 </html>

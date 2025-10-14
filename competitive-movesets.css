@@ -1,0 +1,440 @@
+/* Estilos para movesets competitivos */
+.competitive-movesets {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.competitive-movesets h3 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.moveset-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.moveset-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.moveset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.moveset-header h4 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.moveset-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.tier {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.usage {
+    background: linear-gradient(45deg, #00b894, #00a085);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.moveset-description {
+    color: #f1f2f6;
+    margin-bottom: 15px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.moveset-details {
+    margin-bottom: 15px;
+}
+
+.moves-section {
+    margin-bottom: 15px;
+}
+
+.moves-section strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.moves-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.move-tag {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.move-tag:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #764ba2, #667eea);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.detail-item {
+    margin-bottom: 8px;
+    color: #ddd6fe;
+    font-size: 0.9rem;
+}
+
+.detail-item strong {
+    color: #ffffff;
+    margin-right: 8px;
+}
+
+.moveset-source {
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.moveset-source small {
+    color: #c7d2fe;
+    font-size: 0.8rem;
+}
+
+.no-movesets {
+    text-align: center;
+    color: #f1f2f6;
+    font-style: italic;
+    padding: 40px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error {
+    text-align: center;
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 107, 107, 0.3);
+    font-weight: 500;
+}
+
+/* Seção de controles para movesets */
+.moveset-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.moveset-filter-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.moveset-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #764ba2, #667eea);
+}
+
+.moveset-filter-btn.active {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+/* Tooltips para os botões de filtro */
+.moveset-filter-btn[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 2000;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    font-weight: normal;
+    text-transform: none;
+    line-height: 1.4;
+    max-width: 280px;
+    white-space: normal;
+    text-align: center;
+    animation: tooltipFadeIn 0.3s ease-out;
+}
+
+.moveset-filter-btn[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 119%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    animation: tooltipFadeIn 0.3s ease-out;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .competitive-movesets {
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .moveset-card {
+        padding: 15px;
+    }
+    
+    .moveset-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .moveset-meta {
+        align-self: flex-end;
+    }
+    
+    .moves-list {
+        justify-content: center;
+    }
+    
+    .move-tag {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+    
+    .moveset-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .moveset-filter-btn {
+        width: 200px;
+    }
+}
+
+/* Animações de entrada */
+.moveset-card {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efeito de brilho nos moves */
+.move-tag {
+    position: relative;
+    overflow: hidden;
+}
+
+.move-tag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.move-tag:hover::before {
+    left: 100%;
+}
+
+/* Tooltip para moves */
+.move-tag[data-tooltip] {
+    position: relative;
+}
+
+.move-tag[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.move-tag[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 119%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0,0,0,0.9);
+    z-index: 1000;
+}
+
+/* Tooltips para usage e tiers */
+.tier[data-tooltip], 
+.usage[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+.tier[data-tooltip]:hover::after,
+.usage[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 2000;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    font-weight: normal;
+    text-transform: none;
+    line-height: 1.4;
+    max-width: 250px;
+    white-space: normal;
+    text-align: center;
+}
+
+.tier[data-tooltip]:hover::before,
+.usage[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 119%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+}
+
+/* Animação suave para os tooltips */
+.tier[data-tooltip]:hover::after,
+.usage[data-tooltip]:hover::after,
+.tier[data-tooltip]:hover::before,
+.usage[data-tooltip]:hover::before {
+    animation: tooltipFadeIn 0.3s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Ajuste para diferentes tamanhos de tooltip */
+.usage[data-tooltip]:hover::after {
+    max-width: 200px;
+}
+
+.tier[data-tooltip]:hover::after {
+    max-width: 180px;
+}

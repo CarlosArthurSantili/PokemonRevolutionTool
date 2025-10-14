@@ -1,6 +1,8 @@
 // --- FUNÇÕES GERAIS DE NAVEGAÇÃO ---
 
 function switchSection(targetId) {
+    console.log('Tentando trocar para seção:', targetId);
+    
     // 1. Esconde todas as seções e remove o estado ativo dos links
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -10,7 +12,13 @@ function switchSection(targetId) {
     });
 
     // 2. Mostra a seção desejada
-    document.getElementById(targetId).classList.add('active');
+    const targetSection = document.getElementById(targetId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        console.log('Seção ativada:', targetId);
+    } else {
+        console.error('Seção não encontrada:', targetId);
+    }
 
     // 3. Marca o link ativo
     const activeLink = document.querySelector(`[data-target="${targetId}"]`);
