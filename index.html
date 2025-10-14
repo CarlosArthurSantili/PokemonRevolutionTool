@@ -520,7 +520,10 @@
             
             <div class="pokemon-controls">
                 <div class="search-container">
-                    <input type="text" id="pokemon-search" placeholder="Buscar pokémon...">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="pokemon-search" placeholder="Buscar pokémon...">
+                        <button type="button" id="clear-search" class="clear-search-btn" title="Limpar busca">×</button>
+                    </div>
                     <select id="generation-filter">
                         <option value="">Todas as Gerações</option>
                         <option value="1">Geração I (1-151)</option>
@@ -565,6 +568,13 @@
                             </div>
                         </div>
                         
+                        <div class="pokemon-evolutions">
+                            <h3>Linha Evolutiva</h3>
+                            <div id="modal-pokemon-evolutions" class="evolutions-container">
+                                <div class="evolution-loading">Carregando evoluções...</div>
+                            </div>
+                        </div>
+
                         <div class="pokemon-type-effectiveness">
                             <div class="effectiveness-section">
                                 <h3>Fraquezas (2x dano)</h3>
@@ -583,6 +593,34 @@
                         <div class="pokemon-abilities">
                             <h3>Habilidades</h3>
                             <div id="modal-pokemon-abilities" class="abilities-container"></div>
+                        </div>
+                                                                        
+                        <div class="pokemon-moves">
+                            <h3>Movimentos</h3>
+                            <div class="moves-tabs">
+                                <button class="moves-tab-btn active" data-tab="all-moves">Todos</button>
+                                <button class="moves-tab-btn" data-tab="level-moves">Por Nível</button>
+                                <button class="moves-tab-btn" data-tab="tm-hm-moves">TM/HM</button>
+                            </div>
+                            
+                            <div class="moves-filter">
+                                <div class="moves-search-wrapper">
+                                    <input type="text" id="moves-search" placeholder="Buscar movimento...">
+                                    <button type="button" id="clear-moves-search" class="clear-moves-search-btn" title="Limpar busca">×</button>
+                                </div>
+                            </div>
+                            
+                            <div class="moves-content">
+                                <div id="all-moves" class="moves-tab-content active">
+                                    <div class="moves-loading">Carregando todos os movimentos...</div>
+                                </div>
+                                <div id="level-moves" class="moves-tab-content">
+                                    <div class="moves-loading">Carregando movimentos por nível...</div>
+                                </div>
+                                <div id="tm-hm-moves" class="moves-tab-content">
+                                    <div class="moves-loading">Carregando TMs e HMs...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

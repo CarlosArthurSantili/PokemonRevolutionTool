@@ -22,6 +22,650 @@ const typeEffectiveness = {
     fairy: { weaknesses: ['poison', 'steel'], resistances: ['fighting', 'bug', 'dark'], immunities: ['dragon'] }
 };
 
+// Cache para armazenar dados de evolução
+const evolutionCache = new Map();
+
+// Cache para armazenar descrições de habilidades
+const abilityCache = new Map();
+
+// Cache para armazenar dados de movimentos
+const movesCache = new Map();
+
+// Cache para armazenar descrições de movimentos
+const moveDescriptionCache = new Map();
+
+// Função para buscar descrição de um movimento
+async function fetchMoveDescription(moveUrl) {
+    try {
+        const response = await fetch(moveUrl);
+        const data = await response.json();
+        
+        // Procurar por descrição em português, se não encontrar, usar inglês
+        const portugueseEntry = data.flavor_text_entries.find(entry => entry.language.name === 'pt');
+        const englishEntry = data.flavor_text_entries.find(entry => entry.language.name === 'en');
+        
+        let description = 'Descrição não disponível';
+        if (portugueseEntry) {
+            description = portugueseEntry.flavor_text;
+        } else if (englishEntry) {
+            description = englishEntry.flavor_text;
+        }
+        
+        // Também incluir informações adicionais se disponíveis
+        const effect = data.effect_entries.find(entry => entry.language.name === 'en');
+        if (effect && effect.short_effect) {
+            description += `\n\nEfeito: ${effect.short_effect}`;
+        }
+        
+        return description;
+    } catch (error) {
+        console.error('Erro ao buscar descrição do movimento:', error);
+        return 'Erro ao carregar descrição';
+    }
+}
+
+// Função para buscar dados de um movimento específico
+async function fetchMoveData(moveUrl) {
+    try {
+        const response = await fetch(moveUrl);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erro ao buscar dados do movimento:', error);
+        return null;
+    }
+}
+
+// Função para buscar e processar movimentos de um pokémon
+async function fetchPokemonMoves(pokemon) {
+    // Verificar cache primeiro
+    if (movesCache.has(pokemon.id)) {
+        return movesCache.get(pokemon.id);
+    }
+    
+    try {
+        const movePromises = pokemon.moves.map(async (moveEntry) => {
+            const moveData = await fetchMoveData(moveEntry.move.url);
+            if (!moveData) return null;
+            
+            return {
+                name: moveData.name.replace('-', ' '),
+                originalName: moveData.name,
+                url: moveEntry.move.url,
+                type: moveData.type?.name || 'unknown',
+                power: moveData.power || '-',
+                accuracy: moveData.accuracy || '-',
+                pp: moveData.pp || '-',
+                damageClass: moveData.damage_class?.name || 'status',
+                learnMethods: moveEntry.version_group_details
+            };
+        });
+        
+        const moves = await Promise.all(movePromises);
+        const validMoves = moves.filter(move => move !== null);
+        
+        // Organizar movimentos por método de aprendizado
+        const organizedMoves = {
+            levelUp: [],
+            machine: []
+        };
+        
+        validMoves.forEach(move => {
+            move.learnMethods.forEach(method => {
+                if (method.move_learn_method.name === 'level-up') {
+                    const existingMove = organizedMoves.levelUp.find(m => m.name === move.name);
+                    if (!existingMove) {
+                        organizedMoves.levelUp.push({
+                            ...move,
+                            level: method.level_learned_at
+                        });
+                    }
+                } else if (method.move_learn_method.name === 'machine') {
+                    const existingMove = organizedMoves.machine.find(m => m.name === move.name);
+                    if (!existingMove) {
+                        organizedMoves.machine.push(move);
+                    }
+                }
+            });
+        });
+        
+        // Ordenar movimentos por nível
+        organizedMoves.levelUp.sort((a, b) => a.level - b.level);
+        
+        // Ordenar TMs/HMs por nome
+        organizedMoves.machine.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Armazenar no cache
+        movesCache.set(pokemon.id, organizedMoves);
+        
+        return organizedMoves;
+    } catch (error) {
+        console.error('Erro ao processar movimentos:', error);
+        return { levelUp: [], machine: [] };
+    }
+}
+
+// Função para buscar descrição de uma habilidade
+async function fetchAbilityDescription(abilityUrl) {
+    try {
+        const response = await fetch(abilityUrl);
+        const data = await response.json();
+        
+        // Procurar por descrição em português, se não encontrar, usar inglês
+        const portugueseEntry = data.flavor_text_entries.find(entry => entry.language.name === 'pt');
+        const englishEntry = data.flavor_text_entries.find(entry => entry.language.name === 'en');
+        
+        return portugueseEntry ? portugueseEntry.flavor_text : (englishEntry ? englishEntry.flavor_text : 'Descrição não disponível');
+    } catch (error) {
+        console.error('Erro ao buscar descrição da habilidade:', error);
+        return 'Erro ao carregar descrição';
+    }
+}
+
+// Função para buscar dados de espécie do pokémon
+async function fetchPokemonSpecies(pokemonId) {
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erro ao buscar dados da espécie:', error);
+        return null;
+    }
+}
+
+// Função para buscar dados da cadeia evolutiva
+async function fetchEvolutionChain(evolutionChainUrl) {
+    try {
+        const response = await fetch(evolutionChainUrl);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erro ao buscar cadeia evolutiva:', error);
+        return null;
+    }
+}
+
+// Função para processar a cadeia evolutiva e extrair informações
+function processEvolutionChain(evolutionChain) {
+    const evolutions = [];
+    
+    function extractEvolutions(chainLink) {
+        if (chainLink.species) {
+            const pokemonId = chainLink.species.url.split('/').slice(-2, -1)[0];
+            evolutions.push({
+                id: parseInt(pokemonId),
+                name: chainLink.species.name,
+                trigger: chainLink.evolution_details.length > 0 ? chainLink.evolution_details[0] : null
+            });
+        }
+        
+        if (chainLink.evolves_to && chainLink.evolves_to.length > 0) {
+            chainLink.evolves_to.forEach(evolution => {
+                extractEvolutions(evolution);
+            });
+        }
+    }
+    
+    extractEvolutions(evolutionChain.chain);
+    return evolutions;
+}
+
+// Função para buscar e processar evoluções de um pokémon
+async function fetchPokemonEvolutions(pokemonId) {
+    // Verificar cache primeiro
+    if (evolutionCache.has(pokemonId)) {
+        return evolutionCache.get(pokemonId);
+    }
+    
+    try {
+        // Buscar dados da espécie
+        const speciesData = await fetchPokemonSpecies(pokemonId);
+        if (!speciesData || !speciesData.evolution_chain) {
+            return [];
+        }
+        
+        // Buscar cadeia evolutiva
+        const evolutionChainData = await fetchEvolutionChain(speciesData.evolution_chain.url);
+        if (!evolutionChainData) {
+            return [];
+        }
+        
+        // Processar evoluções
+        const evolutions = processEvolutionChain(evolutionChainData);
+        
+        // Armazenar no cache para todos os pokémons da cadeia
+        evolutions.forEach(evolution => {
+            evolutionCache.set(evolution.id, evolutions);
+        });
+        
+        return evolutions;
+    } catch (error) {
+        console.error('Erro ao processar evoluções:', error);
+        return [];
+    }
+}
+
+// Função para renderizar evoluções no modal
+async function renderEvolutions(pokemonId) {
+    const evolutionsContainer = document.getElementById('modal-pokemon-evolutions');
+    evolutionsContainer.innerHTML = '<div class="evolution-loading">Carregando evoluções...</div>';
+    
+    try {
+        const evolutions = await fetchPokemonEvolutions(pokemonId);
+        
+        if (evolutions.length <= 1) {
+            evolutionsContainer.innerHTML = '<div class="no-evolutions">Este Pokémon não possui evoluções</div>';
+            return;
+        }
+        
+        let evolutionsHtml = '<div class="evolution-chain">';
+        
+        for (let i = 0; i < evolutions.length; i++) {
+            const evolution = evolutions[i];
+            const pokemon = allPokemons.find(p => p.id === evolution.id);
+            
+            if (pokemon) {
+                const isCurrentPokemon = evolution.id === pokemonId;
+                const evolutionTrigger = evolution.trigger && i > 0 ? getEvolutionTriggerText(evolution.trigger) : '';
+                
+                evolutionsHtml += `
+                    <div class="evolution-step ${isCurrentPokemon ? 'current' : ''}">
+                        ${i > 0 ? `<div class="evolution-arrow">→</div>` : ''}
+                        <div class="evolution-pokemon" onclick="navigateToPokemon(${evolution.id})" title="Clique para ver detalhes">
+                            <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                            <div class="evolution-name">${pokemon.name}</div>
+                            <div class="evolution-id">#${pokemon.id.toString().padStart(3, '0')}</div>
+                            ${evolutionTrigger ? `<div class="evolution-trigger">${evolutionTrigger}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        evolutionsHtml += '</div>';
+        evolutionsContainer.innerHTML = evolutionsHtml;
+        
+    } catch (error) {
+        console.error('Erro ao renderizar evoluções:', error);
+        evolutionsContainer.innerHTML = '<div class="evolution-error">Erro ao carregar evoluções</div>';
+    }
+}
+
+// Função para obter texto descritivo do gatilho de evolução
+function getEvolutionTriggerText(trigger) {
+    if (!trigger) return '';
+    
+    const triggerTexts = [];
+    
+    if (trigger.min_level) {
+        triggerTexts.push(`Nível ${trigger.min_level}`);
+    }
+    
+    if (trigger.item) {
+        triggerTexts.push(`${trigger.item.name.replace('-', ' ')}`);
+    }
+    
+    if (trigger.held_item) {
+        triggerTexts.push(`Segurando ${trigger.held_item.name.replace('-', ' ')}`);
+    }
+    
+    if (trigger.time_of_day) {
+        triggerTexts.push(`Durante o ${trigger.time_of_day === 'day' ? 'dia' : 'noite'}`);
+    }
+    
+    if (trigger.min_happiness) {
+        triggerTexts.push(`Felicidade alta`);
+    }
+    
+    if (trigger.min_beauty) {
+        triggerTexts.push(`Beleza alta`);
+    }
+    
+    if (trigger.location) {
+        triggerTexts.push(`Em ${trigger.location.name.replace('-', ' ')}`);
+    }
+    
+    return triggerTexts.length > 0 ? triggerTexts.join(', ') : 'Evolução especial';
+}
+
+// Função para navegar para outro pokémon no modal
+function navigateToPokemon(pokemonId) {
+    const pokemon = allPokemons.find(p => p.id === pokemonId);
+    if (pokemon) {
+        openPokemonModal(pokemon);
+    }
+}
+
+// Variáveis para controle do tooltip de movimentos
+let moveTooltipTimeout = null;
+let currentMoveTooltip = null;
+
+// Função para mostrar tooltip do movimento com delay
+function showMoveTooltip(element, moveUrl, moveName) {
+    // Limpar timeout anterior se existir
+    if (moveTooltipTimeout) {
+        clearTimeout(moveTooltipTimeout);
+    }
+    
+    // Remover tooltip existente
+    hideMoveTooltip();
+    
+    // Configurar novo timeout para 2 segundos
+    moveTooltipTimeout = setTimeout(async () => {
+        // Verificar se ainda estamos sobre o elemento
+        if (element.matches(':hover')) {
+            await displayMoveTooltip(element, moveUrl, moveName);
+        }
+    }, 500);
+}
+
+// Função para exibir o tooltip do movimento
+async function displayMoveTooltip(element, moveUrl, moveName) {
+    // Verificar cache primeiro
+    let description;
+    if (moveDescriptionCache.has(moveUrl)) {
+        description = moveDescriptionCache.get(moveUrl);
+    } else {
+        description = 'Carregando descrição...';
+        // Buscar descrição em background
+        fetchMoveDescription(moveUrl).then(desc => {
+            moveDescriptionCache.set(moveUrl, desc);
+            // Atualizar tooltip se ainda estiver visível
+            const tooltip = document.querySelector('.move-tooltip');
+            if (tooltip && tooltip.dataset.moveUrl === moveUrl) {
+                tooltip.querySelector('.move-tooltip-content').innerHTML = desc.replace(/\n/g, '<br>');
+            }
+        });
+    }
+    
+    // Criar tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'move-tooltip';
+    tooltip.dataset.moveUrl = moveUrl;
+    tooltip.innerHTML = `
+        <div class="move-tooltip-arrow"></div>
+        <div class="move-tooltip-header">${moveName}</div>
+        <div class="move-tooltip-content">${description.replace(/\n/g, '<br>')}</div>
+    `;
+    
+    // Posicionar tooltip
+    document.body.appendChild(tooltip);
+    currentMoveTooltip = tooltip;
+    
+    const rect = element.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    // Posição horizontal (centralizada no elemento)
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    
+    // Ajustar se sair da tela
+    if (left < 10) left = 10;
+    if (left + tooltipRect.width > window.innerWidth - 10) {
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    
+    // Posição vertical (acima do elemento)
+    let top = rect.top - tooltipRect.height - 10;
+    
+    // Se não couber acima, colocar abaixo
+    if (top < 10) {
+        top = rect.bottom + 10;
+        tooltip.classList.add('move-tooltip-bottom');
+    }
+    
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    
+    // Animação de entrada
+    setTimeout(() => {
+        tooltip.classList.add('move-tooltip-visible');
+    }, 10);
+}
+
+// Função para esconder tooltip do movimento
+function hideMoveTooltip() {
+    // Limpar timeout se existir
+    if (moveTooltipTimeout) {
+        clearTimeout(moveTooltipTimeout);
+        moveTooltipTimeout = null;
+    }
+    
+    // Remover tooltip existente
+    if (currentMoveTooltip) {
+        currentMoveTooltip.classList.remove('move-tooltip-visible');
+        setTimeout(() => {
+            if (currentMoveTooltip && currentMoveTooltip.parentNode) {
+                currentMoveTooltip.parentNode.removeChild(currentMoveTooltip);
+            }
+            currentMoveTooltip = null;
+        }, 200);
+    }
+}
+
+// Variáveis para armazenar os movimentos originais para filtragem
+let originalMoves = { levelUp: [], machine: [], all: [] };
+
+// Função para filtrar movimentos
+function filterMoves() {
+    const searchTerm = document.getElementById('moves-search').value.toLowerCase();
+    const activeTab = document.querySelector('.moves-tab-content.active').id;
+    
+    let movesToFilter;
+    if (activeTab === 'level-moves') {
+        movesToFilter = originalMoves.levelUp;
+    } else if (activeTab === 'tm-hm-moves') {
+        movesToFilter = originalMoves.machine;
+    } else if (activeTab === 'all-moves') {
+        movesToFilter = originalMoves.all;
+    } else {
+        movesToFilter = [];
+    }
+    
+    if (!searchTerm) {
+        // Se não há termo de busca, mostrar todos os movimentos
+        renderMovesTable(activeTab, movesToFilter);
+    } else {
+        // Filtrar movimentos baseado no termo de busca
+        const filteredMoves = movesToFilter.filter(move => 
+            move.name.toLowerCase().includes(searchTerm) ||
+            move.type.toLowerCase().includes(searchTerm) ||
+            move.damageClass.toLowerCase().includes(searchTerm)
+        );
+        renderMovesTable(activeTab, filteredMoves);
+    }
+    
+    // Controlar visibilidade do botão X
+    toggleClearMovesButton();
+}
+
+// Função para limpar filtro de movimentos
+function clearMovesFilter() {
+    const searchInput = document.getElementById('moves-search');
+    searchInput.value = '';
+    filterMoves();
+    searchInput.focus();
+}
+
+// Função para controlar visibilidade do botão X
+function toggleClearMovesButton() {
+    const searchInput = document.getElementById('moves-search');
+    const clearButton = document.getElementById('clear-moves-search');
+    
+    if (clearButton && searchInput) {
+        if (searchInput.value.length > 0) {
+            clearButton.classList.add('visible');
+        } else {
+            clearButton.classList.remove('visible');
+        }
+    }
+}
+
+// Função auxiliar para renderizar tabela de movimentos
+function renderMovesTable(tabId, moves) {
+    const container = document.getElementById(tabId);
+    const isLevelMoves = tabId === 'level-moves';
+    const isAllMoves = tabId === 'all-moves';
+    
+    if (moves.length === 0) {
+        let noMovesMessage;
+        if (document.getElementById('moves-search').value) {
+            noMovesMessage = 'Nenhum movimento encontrado com o filtro aplicado';
+        } else {
+            if (isLevelMoves) {
+                noMovesMessage = 'Este Pokémon não aprende movimentos por nível';
+            } else if (isAllMoves) {
+                noMovesMessage = 'Este Pokémon não possui movimentos';
+            } else {
+                noMovesMessage = 'Este Pokémon não pode aprender TMs ou HMs';
+            }
+        }
+            
+        container.innerHTML = `<div class="no-moves">${noMovesMessage}</div>`;
+        return;
+    }
+    
+    // Para a aba "Todos", incluir coluna de origem (Nível/TM-HM)
+    let headerColumns, gridColumns;
+    
+    if (isAllMoves) {
+        headerColumns = ['Origem', 'Nome', 'Tipo', 'Poder', 'Precisão', 'PP', 'Categoria'];
+        gridColumns = '80px 1fr 80px 70px 80px 50px 80px';
+    } else if (isLevelMoves) {
+        headerColumns = ['Nível', 'Nome', 'Tipo', 'Poder', 'Precisão', 'PP', 'Categoria'];
+        gridColumns = '60px 1fr 80px 70px 80px 50px 80px';
+    } else {
+        headerColumns = ['Nome', 'Tipo', 'Poder', 'Precisão', 'PP', 'Categoria'];
+        gridColumns = '1fr 80px 70px 80px 50px 80px';
+    }
+    
+    container.innerHTML = `
+        <div class="moves-table">
+            <div class="moves-header" style="grid-template-columns: ${gridColumns}">
+                ${headerColumns.map(col => `<div class="move-${col.toLowerCase().replace('ção', 'cao').replace('ão', 'ao')}">${col}</div>`).join('')}
+            </div>
+            <div class="moves-body">
+                ${moves.map(move => {
+                    let rowContent = '';
+                    
+                    if (isAllMoves) {
+                        // Para aba "Todos", mostrar origem do movimento
+                        const origin = move.level !== undefined ? `Nv ${move.level}` : 'TM/HM';
+                        rowContent += `<div class="move-origin" data-label="Origem">${origin}</div>`;
+                    } else if (isLevelMoves) {
+                        // Para aba "Por Nível", mostrar nível
+                        rowContent += `<div class="move-level" data-label="Nível">${move.level || '-'}</div>`;
+                    }
+                    
+                    rowContent += `
+                        <div class="move-name" data-label="Nome" 
+                             onmouseenter="showMoveTooltip(this, '${move.url}', '${move.originalName}')" 
+                             onmouseleave="hideMoveTooltip()">${move.name}</div>
+                        <div class="move-type" data-label="Tipo">
+                            <span class="pokemon-type type-${move.type}">${move.type}</span>
+                        </div>
+                        <div class="move-power" data-label="Poder">${move.power}</div>
+                        <div class="move-accuracy" data-label="Precisão">${move.accuracy === null ? '-' : move.accuracy + '%'}</div>
+                        <div class="move-pp" data-label="PP">${move.pp}</div>
+                        <div class="move-category" data-label="Categoria">
+                            <span class="move-category-${move.damageClass}">${move.damageClass}</span>
+                        </div>
+                    `;
+                    
+                    return `<div class="move-row" style="grid-template-columns: ${gridColumns}">${rowContent}</div>`;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Função para renderizar movimentos no modal
+async function renderMoves(pokemon) {
+    const allMovesContainer = document.getElementById('all-moves');
+    const levelMovesContainer = document.getElementById('level-moves');
+    const tmHmMovesContainer = document.getElementById('tm-hm-moves');
+    
+    // Mostrar loading
+    allMovesContainer.innerHTML = '<div class="moves-loading">Carregando todos os movimentos...</div>';
+    levelMovesContainer.innerHTML = '<div class="moves-loading">Carregando movimentos por nível...</div>';
+    tmHmMovesContainer.innerHTML = '<div class="moves-loading">Carregando TMs e HMs...</div>';
+    
+    try {
+        const moves = await fetchPokemonMoves(pokemon);
+        
+        // Criar lista combinada de todos os movimentos
+        const allMoves = [];
+        
+        // Adicionar movimentos por nível
+        moves.levelUp.forEach(move => {
+            allMoves.push({
+                ...move,
+                source: 'level',
+                level: move.level
+            });
+        });
+        
+        // Adicionar TMs e HMs
+        moves.machine.forEach(move => {
+            // Verificar se o movimento já está na lista (evitar duplicatas)
+            const existingMove = allMoves.find(m => m.name === move.name);
+            if (!existingMove) {
+                allMoves.push({
+                    ...move,
+                    source: 'machine',
+                    level: undefined
+                });
+            }
+        });
+        
+        // Ordenar todos os movimentos alfabeticamente
+        allMoves.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Armazenar movimentos originais para filtragem
+        originalMoves = {
+            levelUp: moves.levelUp,
+            machine: moves.machine,
+            all: allMoves
+        };
+        
+        // Renderizar tabelas usando a função auxiliar
+        renderMovesTable('all-moves', allMoves);
+        renderMovesTable('level-moves', moves.levelUp);
+        renderMovesTable('tm-hm-moves', moves.machine);
+        
+        // Limpar filtro ao carregar novos movimentos
+        const searchInput = document.getElementById('moves-search');
+        if (searchInput) {
+            searchInput.value = '';
+            toggleClearMovesButton();
+        }
+        
+    } catch (error) {
+        console.error('Erro ao renderizar movimentos:', error);
+        allMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar todos os movimentos</div>';
+        levelMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar movimentos por nível</div>';
+        tmHmMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar TMs e HMs</div>';
+    }
+}
+
+// Função para alternar entre abas de movimentos
+function switchMovesTab(tabName) {
+    // Remover classe active de todas as abas
+    document.querySelectorAll('.moves-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('.moves-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Adicionar classe active à aba selecionada
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+    
+    // Aplicar filtro para a nova aba
+    filterMoves();
+}
+
 // Função para calcular efetividade combinada de tipos
 function calculateTypeEffectiveness(pokemonTypes) {
     let combinedWeaknesses = [];
@@ -130,11 +774,28 @@ function openPokemonModal(pokemon) {
             ? effectiveness.immunities.map(type => `<span class="pokemon-type type-${type}">${type}</span>`).join('')
             : '<span style="color: #666;">Nenhuma</span>';
     
-    // Preencher habilidades
+    // Preencher habilidades com tooltips
     const abilitiesContainer = document.getElementById('modal-pokemon-abilities');
-    abilitiesContainer.innerHTML = pokemon.abilities.map(ability => 
-        `<div class="ability-item ${ability.is_hidden ? 'hidden' : ''}">${ability.ability.name.replace('-', ' ')}</div>`
-    ).join('');
+    abilitiesContainer.innerHTML = pokemon.abilities.map((ability, index) => {
+        const abilityName = ability.ability.name.replace('-', ' ');
+        const abilityClass = ability.is_hidden ? 'hidden' : '';
+        return `
+            <div class="ability-item ${abilityClass}" 
+                 data-ability-url="${ability.ability.url}" 
+                 data-ability-index="${index}"
+                 onmouseenter="showAbilityTooltip(this, '${ability.ability.url}')"
+                 onmouseleave="hideAbilityTooltip()">
+                ${abilityName}
+                ${ability.is_hidden ? '<span class="hidden-label">(Oculta)</span>' : ''}
+            </div>
+        `;
+    }).join('');
+    
+    // Carregar evoluções do pokémon
+    renderEvolutions(pokemon.id);
+    
+    // Carregar movimentos do pokémon
+    renderMoves(pokemon);
     
     // Mostrar modal
     modal.style.display = 'flex';
@@ -156,6 +817,86 @@ function showPokemonDetails(pokemonId) {
         }
     } else {
         console.error('Lista de pokémons não encontrada. Certifique-se de que o script principal foi carregado.');
+    }
+}
+
+// Função para mostrar tooltip da habilidade
+async function showAbilityTooltip(element, abilityUrl) {
+    // Verificar se já existe um tooltip
+    const existingTooltip = document.querySelector('.ability-tooltip');
+    if (existingTooltip) {
+        existingTooltip.remove();
+    }
+    
+    // Verificar cache primeiro
+    let description;
+    if (abilityCache.has(abilityUrl)) {
+        description = abilityCache.get(abilityUrl);
+    } else {
+        description = 'Carregando descrição...';
+        // Buscar descrição em background
+        fetchAbilityDescription(abilityUrl).then(desc => {
+            abilityCache.set(abilityUrl, desc);
+            // Atualizar tooltip se ainda estiver visível
+            const tooltip = document.querySelector('.ability-tooltip');
+            if (tooltip && tooltip.dataset.abilityUrl === abilityUrl) {
+                tooltip.querySelector('.tooltip-content').textContent = desc;
+            }
+        });
+    }
+    
+    // Criar tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'ability-tooltip';
+    tooltip.dataset.abilityUrl = abilityUrl;
+    tooltip.innerHTML = `
+        <div class="tooltip-arrow"></div>
+        <div class="tooltip-content">${description}</div>
+    `;
+    
+    // Posicionar tooltip
+    document.body.appendChild(tooltip);
+    
+    const rect = element.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    // Posição horizontal (centralizada no elemento)
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    
+    // Ajustar se sair da tela
+    if (left < 10) left = 10;
+    if (left + tooltipRect.width > window.innerWidth - 10) {
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    
+    // Posição vertical (acima do elemento)
+    let top = rect.top - tooltipRect.height - 10;
+    
+    // Se não couber acima, colocar abaixo
+    if (top < 10) {
+        top = rect.bottom + 10;
+        tooltip.classList.add('tooltip-bottom');
+    }
+    
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    
+    // Animação de entrada
+    setTimeout(() => {
+        tooltip.classList.add('tooltip-visible');
+    }, 10);
+}
+
+// Função para esconder tooltip da habilidade
+function hideAbilityTooltip() {
+    const tooltip = document.querySelector('.ability-tooltip');
+    if (tooltip) {
+        tooltip.classList.remove('tooltip-visible');
+        setTimeout(() => {
+            if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        }, 200);
     }
 }
 
@@ -183,4 +924,29 @@ document.addEventListener('DOMContentLoaded', function() {
             closePokemonModal();
         }
     });
+    
+    // Event listeners para as abas de movimentos
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('moves-tab-btn')) {
+            const tabName = e.target.getAttribute('data-tab');
+            switchMovesTab(tabName);
+        }
+    });
+    
+    // Event listeners para o filtro de movimentos
+    const movesSearchInput = document.getElementById('moves-search');
+    const clearMovesSearchBtn = document.getElementById('clear-moves-search');
+    
+    if (movesSearchInput) {
+        movesSearchInput.addEventListener('input', function() {
+            filterMoves();
+            toggleClearMovesButton();
+        });
+        
+        movesSearchInput.addEventListener('keyup', toggleClearMovesButton);
+    }
+    
+    if (clearMovesSearchBtn) {
+        clearMovesSearchBtn.addEventListener('click', clearMovesFilter);
+    }
 });
