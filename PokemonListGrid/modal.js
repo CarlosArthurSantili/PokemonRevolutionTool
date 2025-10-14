@@ -56,9 +56,12 @@ const moveDescriptionCache = new Map();
 
 // Função para buscar descrição de um movimento
 async function fetchMoveDescription(moveUrl) {
+    console.log('fetchMoveDescription chamado para:', moveUrl);
     try {
         const response = await fetch(moveUrl);
         const data = await response.json();
+        
+        console.log('Dados do movimento recebidos:', data);
         
         // Procurar por descrição em português, se não encontrar, usar inglês
         const portugueseEntry = data.flavor_text_entries.find(entry => entry.language.name === 'pt');
@@ -77,6 +80,7 @@ async function fetchMoveDescription(moveUrl) {
             description += `\n\nEfeito: ${effect.short_effect}`;
         }
         
+        console.log('Descrição final:', description);
         return description;
     } catch (error) {
         console.error('Erro ao buscar descrição do movimento:', error);
@@ -155,13 +159,22 @@ async function fetchPokemonMoves(pokemon) {
         // Ordenar TMs/HMs por nome
         organizedMoves.machine.sort((a, b) => a.name.localeCompare(b.name));
         
+        // Criar lista com todos os movimentos para a aba "Todos"
+        organizedMoves.all = [
+            ...organizedMoves.levelUp.map(move => ({ ...move, origin: 'level' })),
+            ...organizedMoves.machine.map(move => ({ ...move, origin: 'machine' }))
+        ];
+        
+        // Ordenar todos os movimentos por nome
+        organizedMoves.all.sort((a, b) => a.name.localeCompare(b.name));
+        
         // Armazenar no cache
         movesCache.set(pokemon.id, organizedMoves);
         
         return organizedMoves;
     } catch (error) {
         console.error('Erro ao processar movimentos:', error);
-        return { levelUp: [], machine: [] };
+        return { levelUp: [], machine: [], all: [] };
     }
 }
 
@@ -371,13 +384,13 @@ function showMoveTooltip(element, moveUrl, moveName) {
     // Remover tooltip existente
     hideMoveTooltip();
     
-    // Configurar novo timeout para 2 segundos
+    // Configurar novo timeout
     moveTooltipTimeout = setTimeout(async () => {
         // Verificar se ainda estamos sobre o elemento
         if (element.matches(':hover')) {
             await displayMoveTooltip(element, moveUrl, moveName);
         }
-    }, 500);
+    }, 300); // Reduzido de 500ms para 300ms para resposta mais rápida
 }
 
 // Função para exibir o tooltip do movimento
@@ -395,6 +408,12 @@ async function displayMoveTooltip(element, moveUrl, moveName) {
             const tooltip = document.querySelector('.move-tooltip');
             if (tooltip && tooltip.dataset.moveUrl === moveUrl) {
                 tooltip.querySelector('.move-tooltip-content').innerHTML = desc.replace(/\n/g, '<br>');
+            }
+        }).catch(error => {
+            console.error('Erro ao carregar descrição:', error);
+            const tooltip = document.querySelector('.move-tooltip');
+            if (tooltip && tooltip.dataset.moveUrl === moveUrl) {
+                tooltip.querySelector('.move-tooltip-content').innerHTML = 'Erro ao carregar descrição';
             }
         });
     }
@@ -524,12 +543,19 @@ function toggleClearMovesButton() {
 // Função auxiliar para renderizar tabela de movimentos
 function renderMovesTable(tabId, moves) {
     const container = document.getElementById(tabId);
-    const isLevelMoves = tabId === 'level-moves';
-    const isAllMoves = tabId === 'all-moves';
+    
+    if (!container) {
+        console.error('Container não encontrado:', tabId);
+        return;
+    }
+    
+    const isLevelMoves = tabId === 'level-moves' || tabId === 'inline-level-moves';
+    const isAllMoves = tabId === 'all-moves' || tabId === 'inline-all-moves';
     
     if (moves.length === 0) {
         let noMovesMessage;
-        if (document.getElementById('moves-search').value) {
+        const searchInput = document.getElementById('moves-search') || document.getElementById('inline-moves-search');
+        if (searchInput && searchInput.value) {
             noMovesMessage = 'Nenhum movimento encontrado com o filtro aplicado';
         } else {
             if (isLevelMoves) {
@@ -839,7 +865,7 @@ function showPokemonDetails(pokemonId) {
     if (typeof allPokemons !== 'undefined') {
         const pokemon = allPokemons.find(p => p.id === pokemonId);
         if (pokemon) {
-            openPokemonModal(pokemon);
+            openPokemonInline(pokemon);
         }
     } else {
         console.error('Lista de pokémons não encontrada. Certifique-se de que o script principal foi carregado.');
@@ -948,8 +974,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePokemonModal();
+            closeInlineDetails(); // Também fechar detalhes inline com ESC
         }
     });
+    
+    // Event listeners para os detalhes inline
+    const closeInlineBtn = document.getElementById('close-inline-details');
+    if (closeInlineBtn) {
+        closeInlineBtn.addEventListener('click', closeInlineDetails);
+    }
     
     // Event listeners para as abas de movimentos
     document.addEventListener('click', function(e) {
@@ -976,3 +1009,278 @@ document.addEventListener('DOMContentLoaded', function() {
         clearMovesSearchBtn.addEventListener('click', clearMovesFilter);
     }
 });
+
+// ====== FUNÇÕES PARA DETALHES INLINE ======
+
+// Função para abrir detalhes inline na própria página
+function openPokemonInline(pokemon) {
+    // Esconder listagem de Pokémon
+    const pokemonsContainer = document.getElementById('pokemons-container');
+    pokemonsContainer.style.display = 'none';
+    
+    // Mostrar área de detalhes inline
+    const inlineDetails = document.getElementById('pokemon-inline-details');
+    inlineDetails.style.display = 'block';
+    
+    // Preencher informações básicas
+    document.getElementById('inline-pokemon-name').textContent = pokemon.name;
+    document.getElementById('inline-pokemon-id').textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
+    document.getElementById('inline-pokemon-image').src = pokemon.sprites.front_default || pokemon.sprites.other?.['official-artwork']?.front_default || '';
+    
+    // Preencher tipos
+    const typesContainer = document.getElementById('inline-pokemon-types');
+    typesContainer.innerHTML = pokemon.types.map(type => 
+        `<span class="pokemon-type type-${type.type.name}">${type.type.name}</span>`
+    ).join('');
+    
+    // Preencher estatísticas
+    const statsContainer = document.getElementById('inline-pokemon-stats');
+    statsContainer.innerHTML = pokemon.stats.map(stat => {
+        const statName = stat.stat.name;
+        const statValue = stat.base_stat;
+        const percentage = Math.min((statValue / 255) * 100, 100);
+        
+        // Mapear nome da stat para classe CSS
+        const statClass = statName.replace('-', '-');
+        
+        return `
+            <div class="stat-bar">
+                <div class="stat-bar-label">
+                    <span>${statName.replace('-', ' ')}</span>
+                    <span class="stat-value">${statValue}</span>
+                </div>
+                <div class="stat-bar-background">
+                    <div class="stat-bar-fill stat-${statClass}" style="width: ${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Calcular efetividade de tipos
+    const effectiveness = calculateTypeEffectiveness(pokemon.types);
+    
+    document.getElementById('inline-pokemon-weaknesses').innerHTML = 
+        effectiveness.weaknesses.length > 0 
+            ? effectiveness.weaknesses.map(weakness => {
+                const multiplierText = weakness.multiplier === 4 ? ' (4×)' : weakness.multiplier === 2 ? ' (2×)' : '';
+                return `<span class="pokemon-type type-${weakness.type}">${weakness.type}${multiplierText}</span>`;
+            }).join('')
+            : '<span style="color: #666;">Nenhuma</span>';
+    
+    document.getElementById('inline-pokemon-resistances').innerHTML = 
+        effectiveness.resistances.length > 0 
+            ? effectiveness.resistances.map(resistance => {
+                const multiplierText = resistance.multiplier === 0.25 ? ' (¼×)' : resistance.multiplier === 0.5 ? ' (½×)' : '';
+                return `<span class="pokemon-type type-${resistance.type}">${resistance.type}${multiplierText}</span>`;
+            }).join('')
+            : '<span style="color: #666;">Nenhuma</span>';
+    
+    document.getElementById('inline-pokemon-immunities').innerHTML = 
+        effectiveness.immunities.length > 0 
+            ? effectiveness.immunities.map(type => `<span class="pokemon-type type-${type}">${type}</span>`).join('')
+            : '<span style="color: #666;">Nenhuma</span>';
+    
+    // Preencher habilidades com tooltips
+    const abilitiesContainer = document.getElementById('inline-pokemon-abilities');
+    abilitiesContainer.innerHTML = pokemon.abilities.map((ability, index) => {
+        const abilityName = ability.ability.name.replace('-', ' ');
+        const isHidden = ability.is_hidden;
+        const hiddenClass = isHidden ? ' hidden' : '';
+        const hiddenText = isHidden ? ' (Habilidade Oculta)' : '';
+        return `
+            <span class="ability-item${hiddenClass}" 
+                  onmouseenter="showAbilityTooltip(this, '${ability.ability.url}')" 
+                  onmouseleave="hideAbilityTooltip()">
+                ${abilityName}${hiddenText}
+            </span>
+        `;
+    }).join(', ');
+    
+    // Buscar e carregar evoluções
+    loadPokemonEvolutions(pokemon, 'inline-pokemon-evolutions');
+    
+    // Renderizar movimentos inline
+    renderInlineMoves(pokemon);
+    
+    // Configurar event listeners para as abas de movimentos inline
+    setupInlineMoveTabs();
+    
+    // Scroll para o topo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Função para carregar evoluções do Pokémon
+async function loadPokemonEvolutions(pokemon, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '<div class="evolution-loading">Carregando evoluções...</div>';
+    
+    try {
+        // Buscar dados da espécie para obter a chain de evolução
+        const speciesResponse = await fetch(pokemon.species.url);
+        const speciesData = await speciesResponse.json();
+        
+        // Buscar a chain de evolução
+        const evolutionResponse = await fetch(speciesData.evolution_chain.url);
+        const evolutionData = await evolutionResponse.json();
+        
+        // Processar a chain de evolução
+        const evolutionChain = await processEvolutionChain(evolutionData.chain);
+        
+        // Renderizar as evoluções
+        if (evolutionChain.length > 1) {
+            container.innerHTML = `
+                <div class="evolution-chain">
+                    ${evolutionChain.map((evo, index) => {
+                        const isCurrentPokemon = evo.id === pokemon.id;
+                        const currentClass = isCurrentPokemon ? ' current' : '';
+                        return `
+                            <div class="evolution-step${currentClass}">
+                                <div class="evolution-pokemon" onclick="showPokemonDetails(${evo.id})">
+                                    <img src="${evo.sprite}" alt="${evo.name}">
+                                    <div class="evolution-name">${evo.name}</div>
+                                    <div class="evolution-id">#${evo.id.toString().padStart(3, '0')}</div>
+                                </div>
+                            </div>
+                            ${index < evolutionChain.length - 1 ? '<div class="evolution-arrow">→</div>' : ''}
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        } else {
+            container.innerHTML = '<div class="no-evolutions">Este Pokémon não possui evoluções.</div>';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar evoluções:', error);
+        container.innerHTML = '<div class="evolution-error">Erro ao carregar evoluções.</div>';
+    }
+}
+
+// Função para processar a chain de evolução recursivamente
+async function processEvolutionChain(chain) {
+    const evolutions = [];
+    
+    // Função recursiva para percorrer a chain
+    async function parseChain(currentChain) {
+        // Buscar dados do Pokémon atual
+        const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${currentChain.species.name}`);
+        const pokemonData = await pokemonResponse.json();
+        
+        evolutions.push({
+            id: pokemonData.id,
+            name: currentChain.species.name,
+            sprite: pokemonData.sprites.front_default || pokemonData.sprites.other?.['official-artwork']?.front_default || ''
+        });
+        
+        // Processar evoluções seguintes
+        for (const evolution of currentChain.evolves_to) {
+            await parseChain(evolution);
+        }
+    }
+    
+    await parseChain(chain);
+    return evolutions;
+}
+
+// Função para fechar detalhes inline
+function closeInlineDetails() {
+    // Esconder área de detalhes inline
+    document.getElementById('pokemon-inline-details').style.display = 'none';
+    
+    // Mostrar listagem de Pokémon com layout correto
+    const pokemonsContainer = document.getElementById('pokemons-container');
+    pokemonsContainer.style.display = 'flex'; // Manter o layout flex original
+}
+
+// Função para renderizar movimentos inline
+async function renderInlineMoves(pokemon) {
+    const allMovesContainer = document.getElementById('inline-all-moves');
+    const levelMovesContainer = document.getElementById('inline-level-moves');
+    const tmHmMovesContainer = document.getElementById('inline-tm-hm-moves');
+    
+    // Verificar se os containers existem
+    if (!allMovesContainer || !levelMovesContainer || !tmHmMovesContainer) {
+        console.error('Containers de movimentos inline não encontrados');
+        return;
+    }
+    
+    // Mostrar loading
+    allMovesContainer.innerHTML = '<div class="moves-loading">Carregando todos os movimentos...</div>';
+    levelMovesContainer.innerHTML = '<div class="moves-loading">Carregando movimentos por nível...</div>';
+    tmHmMovesContainer.innerHTML = '<div class="moves-loading">Carregando TMs e HMs...</div>';
+    
+    try {
+        const pokemonMoves = await fetchPokemonMoves(pokemon);
+        
+        // Renderizar movimentos nas respectivas abas usando containers diretos
+        renderMovesTable('inline-all-moves', pokemonMoves.all);
+        renderMovesTable('inline-level-moves', pokemonMoves.levelUp);
+        renderMovesTable('inline-tm-hm-moves', pokemonMoves.machine);
+        
+        // Configurar filtro para inline
+        setupInlineMovesFilter(pokemonMoves);
+        
+    } catch (error) {
+        console.error('Erro ao carregar movimentos:', error);
+        allMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar todos os movimentos</div>';
+        levelMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar movimentos por nível</div>';
+        tmHmMovesContainer.innerHTML = '<div class="moves-error">Erro ao carregar TMs e HMs</div>';
+    }
+}
+
+// Configurar abas de movimentos inline
+function setupInlineMoveTabs() {
+    const tabButtons = document.querySelectorAll('#pokemon-inline-details .moves-tab-btn');
+    const tabContents = document.querySelectorAll('#pokemon-inline-details .moves-tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Remover classe active de todas as abas
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Adicionar classe active na aba clicada
+            button.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+            
+            // Aplicar filtro para a nova aba
+            filterInlineMoves();
+        });
+    });
+}
+
+// Configurar filtro de movimentos inline
+function setupInlineMovesFilter(pokemonMoves) {
+    const searchInput = document.getElementById('inline-moves-search');
+    const clearButton = document.getElementById('inline-clear-moves-search');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterInlineMoves);
+    }
+    
+    if (clearButton) {
+        clearButton.addEventListener('click', () => {
+            searchInput.value = '';
+            filterInlineMoves();
+        });
+    }
+}
+
+// Filtrar movimentos inline
+function filterInlineMoves() {
+    const searchTerm = document.getElementById('inline-moves-search')?.value.toLowerCase() || '';
+    const activeTab = document.querySelector('#pokemon-inline-details .moves-tab-btn.active')?.getAttribute('data-tab');
+    
+    if (!activeTab) return;
+    
+    const movesContainer = document.getElementById(activeTab);
+    const moveRows = movesContainer.querySelectorAll('.move-row');
+    
+    moveRows.forEach(row => {
+        const moveName = row.querySelector('.move-name')?.textContent.toLowerCase() || '';
+        const shouldShow = moveName.includes(searchTerm);
+        row.style.display = shouldShow ? 'grid' : 'none';
+    });
+}
