@@ -272,10 +272,42 @@ async function loadAllPokemons() {
 // Event listeners para os controles de pesquisa e navegação
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('pokemon-search');
+    const clearSearchBtn = document.getElementById('clear-search');
     const generationSelect = document.getElementById('generation-filter');
     
     if (searchInput) {
-        searchInput.addEventListener('input', filterPokemons);
+        // Event listener para input de busca
+        searchInput.addEventListener('input', function() {
+            filterPokemons();
+            toggleClearButton();
+        });
+        
+        // Event listener para detectar mudanças no valor (incluindo programáticas)
+        searchInput.addEventListener('propertychange', toggleClearButton);
+        searchInput.addEventListener('keyup', toggleClearButton);
+        
+        // Verificar estado inicial
+        toggleClearButton();
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            toggleClearButton();
+            filterPokemons();
+            searchInput.focus();
+        });
+    }
+    
+    // Função para mostrar/esconder o botão X
+    function toggleClearButton() {
+        if (clearSearchBtn && searchInput) {
+            if (searchInput.value.length > 0) {
+                clearSearchBtn.classList.add('visible');
+            } else {
+                clearSearchBtn.classList.remove('visible');
+            }
+        }
     }
     
     if (generationSelect) {
